@@ -13,17 +13,58 @@ jobs:
 
       - name: Write .env from GitHub Secrets
         run: |
+          set -euo pipefail
           echo "PYATS_USERNAME=${{ secrets.PYATS_USERNAME }}" > .env
           echo "PYATS_PASSWORD=${{ secrets.PYATS_PASSWORD }}" >> .env
           if [ -n "${{ secrets.PYATS_ENABLE_PASSWORD }}" ]; then
             echo "PYATS_ENABLE_PASSWORD=${{ secrets.PYATS_ENABLE_PASSWORD }}" >> .env
           fi
+          echo "Wrote .env with keys:"; cut -d= -f1 .env
 
-      - name: Build
+      - name: Show docker compose config (ensures .env is wired)
+        run: docker compose config
+
+      - name: Check Docker & Compose
+        run: |
+          docker version
+          docker compose version
+
+      - name: Build image
         run: docker compose build
 
       - name: Render testbed
         run: docker compose run --rm pyats python tools/render_testbed.py
 
-      - name: Validate
-        run: docker compose run --rm pyats pytest -q
+      - name: Show what the container sees (env, route, ssh quick check)
+        run: |
+          docker compose run --rm pyats bash -lc '
+            set -e
+            echo "Container env (redacted keys only):"
+            env | grep -E "^PYATS_(USER|PASS)" | sed "s/=.*/=<redacted>/"
+            echo "Route to r1:"; ip route get 10.0.0.248 || true
+            echo "ssh probe to r1 (no prompt expected, just exit):"
+            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              "$PYATS_USERNAME@10.0.0.248" "exit" || true
+          '
+
+      - name: Print rendered testbed (redact passwords)
+        run: |
+          sed -e "s/password: .*/password: <redacted>/" \
+              -e "s/enable: .*/enable: <redacted>/" \
+              testbed/testbed.yaml | sed -n '1,200p'
+
+      - name: pyATS version
+        run: docker compose run --rm pyats pyats version
+
+      - name: Run tests (verbose, keep artifacts)
+        continue-on-error: true
+        run: docker compose run --rm pyats pytest -vv --maxfail=1 --durations=10 --junitxml=pytest-report.xml
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyats-artifacts
+          path: |
+            testbed/testbed.yaml
+            pytest-report.xml

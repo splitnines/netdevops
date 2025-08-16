@@ -1,17 +1,9 @@
 services:
   pyats:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.pyats
-    container_name: netdevops-pyats
-    # Linux-only: share host network so the container reaches your devices
     network_mode: host
     env_file: .env
-    volumes:
-      - ./:/workspace
-      # optional: pass your git ssh keys for pulls/pushes from inside the container
-      - ~/.ssh:/home/pyats/.ssh:ro
-    working_dir: /workspace
-    tty: true
-    stdin_open: true
-
+    # (optional explicit)
+    environment:
+      - PYATS_USERNAME=${PYATS_USERNAME}
+      - PYATS_PASSWORD=${PYATS_PASSWORD}
+      - PYATS_ENABLE_PASSWORD=${PYATS_ENABLE_PASSWORD:-${PYATS_PASSWORD}}
