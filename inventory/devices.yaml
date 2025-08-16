@@ -3,7 +3,7 @@ devices:
     ip: 10.0.0.248
     os: iosxe
     type: router
-    mgmt_int: Loopback0
+    mgmt_int: Ethernet1/0
     expected_hostname: r1
 
   - name: sw2-1

@@ -23,7 +23,7 @@ def tb():
 
 
 @pytest.mark.parametrize("d", devices_iosxe())
-def test_mgmt_interface_up_up(tb, d):
+def test_connectivity_test(tb, d):
     dev = tb.devices[d["name"]]
     dev.connect(log_stdout=False)
     try:
