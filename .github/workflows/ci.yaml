@@ -1,12 +1,32 @@
 name: netdevops-ci
+
 on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_dispatch:
 
 jobs:
+  # Always-safe checks that require no secrets or device access
+  smoke:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python/pytest available?
+        run: |
+          python --version
+          pip --version
+      - name: Repo tree
+        run: |
+          pwd
+          ls -la
+      # Add any static checks here (flake8, yamllint, unit tests that don't hit devices)
+
+  # Only run lab device tests when secrets are available
   lab-validate:
     runs-on: self-hosted
+    needs: smoke
+    if: ${{ secrets.PYATS_USERNAME != '' && secrets.PYATS_PASSWORD != '' && github.event_name == 'push' }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -19,12 +39,10 @@ jobs:
           if [ -n "${{ secrets.PYATS_ENABLE_PASSWORD }}" ]; then
             echo "PYATS_ENABLE_PASSWORD=${{ secrets.PYATS_ENABLE_PASSWORD }}" >> .env
           fi
-          echo "Wrote .env with keys:"; cut -d= -f1 .env
+          # show keys present (values redacted)
+          cut -d= -f1 .env
 
-      - name: Show docker compose config (ensures .env is wired)
-        run: docker compose config
-
-      - name: Check Docker & Compose
+      - name: Docker & Compose versions
         run: |
           docker version
           docker compose version
@@ -35,29 +53,7 @@ jobs:
       - name: Render testbed
         run: docker compose run --rm pyats python tools/render_testbed.py
 
-      - name: Show what the container sees (env, route, ssh quick check)
-        run: |
-          docker compose run --rm pyats bash -lc '
-            set -e
-            echo "Container env (redacted keys only):"
-            env | grep -E "^PYATS_(USER|PASS)" | sed "s/=.*/=<redacted>/"
-            echo "Route to r1:"; ip route get 10.0.0.248 || true
-            echo "ssh probe to r1 (no prompt expected, just exit):"
-            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-              "$PYATS_USERNAME@10.0.0.248" "exit" || true
-          '
-
-      - name: Print rendered testbed (redact passwords)
-        run: |
-          sed -e "s/password: .*/password: <redacted>/" \
-              -e "s/enable: .*/enable: <redacted>/" \
-              testbed/testbed.yaml | sed -n '1,200p'
-
-      - name: pyATS version
-        run: docker compose run --rm pyats pyats version
-
-      - name: Run tests (verbose, keep artifacts)
-        continue-on-error: true
+      - name: Run tests (verbose) and keep report
         run: docker compose run --rm pyats pytest -vv --maxfail=1 --durations=10 --junitxml=pytest-report.xml
 
       - name: Upload artifacts
@@ -68,3 +64,4 @@ jobs:
           path: |
             testbed/testbed.yaml
             pytest-report.xml
+
