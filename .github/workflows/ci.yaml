@@ -1,33 +1,29 @@
 name: netdevops-ci
+
 on:
   push:
-    branches: [ main ]
-  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  lab-validate:
+  validate:
     runs-on: self-hosted
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Write .env from GitHub Secrets
+      - name: Create .env from secrets
         run: |
           set -euo pipefail
-          echo "PYATS_USERNAME=${{ secrets.PYATS_USERNAME }}" > .env
-          echo "PYATS_PASSWORD=${{ secrets.PYATS_PASSWORD }}" >> .env
-          if [ -n "${{ secrets.PYATS_ENABLE_PASSWORD }}" ]; then
-            echo "PYATS_ENABLE_PASSWORD=${{ secrets.PYATS_ENABLE_PASSWORD }}" >> .env
-          fi
-          echo "Wrote .env with keys:"; cut -d= -f1 .env
-
-      - name: Show repo layout + inventory file
-        run: |
-          pwd
-          ls -la
-          echo "---- inventory/devices.yaml ----"
-          sed -n '1,200p' inventory/devices.yaml
+          {
+            echo "PYATS_USERNAME=${{ secrets.PYATS_USERNAME }}"
+            echo "PYATS_PASSWORD=${{ secrets.PYATS_PASSWORD }}"
+            if [ -n "${{ secrets.PYATS_ENABLE_PASSWORD }}" ]; then
+              echo "PYATS_ENABLE_PASSWORD=${{ secrets.PYATS_ENABLE_PASSWORD }}"
+            fi
+          } > .env
+          cat .env | cut -d= -f1
 
       - name: Docker & Compose versions
         run: |
@@ -40,50 +36,13 @@ jobs:
       - name: Render testbed
         run: docker compose run --rm pyats python tools/render_testbed.py
 
-      - name: Print rendered testbed (passwords redacted)
-        run: |
-          sed -e "s/password: .*/password: <redacted>/" \
-              -e "s/enable: .*/enable: <redacted>/" \
-              testbed/testbed.yaml | sed -n '1,200p'
-
-      - name: One-off SSH probe to r1 from inside container
-        run: |
-          docker compose run --rm pyats bash -lc '
-            set -x
-            env | grep -E "^PYATS_(USER|PASS)" | sed "s/=.*/=<redacted>/"
-            ssh -vv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-              "$PYATS_USERNAME@10.0.0.248" "exit" || true
-          '
-
-      - name: Unicon connect to r1 with full dialog
-        run: |
-          docker compose run --rm pyats python - <<'PY'
-from genie.testbed import load
-tb = load("testbed/testbed.yaml")
-name = "r1"
-if name not in tb.devices:
-    raise SystemExit(f"Device '{name}' not in testbed; devices={list(tb.devices.keys())}")
-d = tb.devices[name]
-print(f"=== CONNECT {name} ===")
-try:
-    d.connect(log_stdout=True)   # prints chat
-    print("[OK] connected; prompt:", getattr(d, "prompt", "<no prompt attr>"))
-    d.disconnect()
-except Exception as e:
-    print("[FAIL] connect error:", repr(e))
-    raise
-PY
-
-      - name: Run tests (verbose, stop at first failure)
+      - name: Run tests
         run: docker compose run --rm pyats pytest -vv --maxfail=1 --durations=10 --junitxml=pytest-report.xml
 
-      - name: Upload artifacts
+      - name: Upload pytest report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pyats-artifacts
-          path: |
-            inventory/devices.yaml
-            testbed/testbed.yaml
-            pytest-report.xml
+          name: pytest-report
+          path: pytest-report.xml
 
