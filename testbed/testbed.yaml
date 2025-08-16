@@ -1,0 +1,32 @@
+testbed:
+  name: lab
+  credentials:
+    default:
+      username: "cisco"
+      password: "cisco"
+      enable: "cisco"
+
+devices:
+
+  "r1":
+    os: "iosxe"
+    type: "router"
+    connections:
+      defaults:
+        class: unicon.Unicon
+      cli:
+        protocol: ssh
+        ip: "10.0.0.248"
+        port: 22
+
+  "sw2-1":
+    os: "iosxe"
+    type: "switch"
+    connections:
+      defaults:
+        class: unicon.Unicon
+      cli:
+        protocol: ssh
+        ip: "10.2.1.1"
+        port: 22
+

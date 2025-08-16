@@ -1,0 +1,7 @@
+# pyATS + Genie + Unicon
+pyats[full]
+# testing & helpers
+pytest
+jinja2
+rich
+PyYAML

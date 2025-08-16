@@ -1,0 +1,22 @@
+testbed:
+  name: lab
+  credentials:
+    default:
+      username: "{{ env.PYATS_USERNAME }}"
+      password: "{{ env.PYATS_PASSWORD }}"
+      enable: "{{ env.PYATS_ENABLE_PASSWORD | default(env.PYATS_PASSWORD) }}"
+
+devices:
+{% for d in inventory.devices %}
+  "{{ d.name }}":
+    os: "{{ d.os }}"
+    type: "{{ d.type }}"
+    connections:
+      defaults:
+        class: unicon.Unicon
+      cli:
+        protocol: ssh
+        ip: "{{ d.ip }}"
+        port: 22
+{% endfor %}
+
