@@ -1,5 +1,4 @@
 name: netdevops-ci
-
 on:
   push:
     branches: [ main ]
@@ -7,7 +6,7 @@ on:
 
 jobs:
   lab-validate:
-    runs-on: self-hosted   # because your lab devices are only reachable from your Linux box
+    runs-on: self-hosted
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -19,14 +18,12 @@ jobs:
           if [ -n "${{ secrets.PYATS_ENABLE_PASSWORD }}" ]; then
             echo "PYATS_ENABLE_PASSWORD=${{ secrets.PYATS_ENABLE_PASSWORD }}" >> .env
           fi
-  
 
-      - name: Build Docker image
+      - name: Build
         run: docker compose build
 
       - name: Render testbed
         run: docker compose run --rm pyats python tools/render_testbed.py
 
-      - name: Run validation tests
+      - name: Validate
         run: docker compose run --rm pyats pytest -q
-
