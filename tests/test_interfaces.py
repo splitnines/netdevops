@@ -16,7 +16,9 @@ def test_mgmt_interface_up_up(tb, d):
         parsed = dev.parse("show ip interface brief")
         ent = parsed["interface"].get(d["mgmt_int"])
         assert ent, f"{d['name']} missing {d['mgmt_int']}"
-        assert ent["status"] == "up" and ent["proto"] == "up", f"{d['name']} "
+        assert ent["status"] == "up" and ent["protocol"] == "up", (
+            f"{d['name']} "
+        )
         f"{d['mgmt_int']} not up/up: {ent}"
     finally:
         if dev.is_connected():
