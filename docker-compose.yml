@@ -1,9 +1,17 @@
+# docker-compose.yml
 services:
   pyats:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.pyats
     network_mode: host
     env_file: .env
-    # (optional explicit)
     environment:
       - PYATS_USERNAME=${PYATS_USERNAME}
       - PYATS_PASSWORD=${PYATS_PASSWORD}
       - PYATS_ENABLE_PASSWORD=${PYATS_ENABLE_PASSWORD:-${PYATS_PASSWORD}}
+    volumes:
+      - ./:/workspace
+      - ~/.ssh:/home/pyats/.ssh:ro
+    working_dir: /workspace
+
