@@ -4,12 +4,12 @@ devices:
     os: iosxe
     type: router
     mgmt_int: Loopback0
-    expected_hostname: R1
+    expected_hostname: r1
 
   - name: sw2-1
     ip: 10.2.1.1
     os: iosxe
     type: switch
     mgmt_int: Loopback0
-    expected_hostname: SW2-1
+    expected_hostname: sw2-1
 
