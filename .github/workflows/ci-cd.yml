@@ -12,6 +12,10 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  CISCO_USER: ${{ secrets.CISCO_USER }}
+  CISCO_PASS: ${{ secrets.CSICO_USER }}
+
 jobs:
   validate:
     runs-on: self-hosted
