@@ -14,66 +14,66 @@ on:
 
 jobs:
   validate:
-    name: Validate Playbooks & Configs
     runs-on: self-hosted
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Activate venv
-        run: |
-          source .venv/bin/activate
-          which ansible-palybook
-          ansible-playbook --version
-
-      - name: Ansible Syntax Check
-        run: |
-          source .venv/bin/activate
-          ansible-playbook --syntax-check playbooks/*.yml -i inventrory/ospf_lab.yml
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install uv
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt || true
-          pip install pyats genie
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Sync dependencies with uv
+        run: |
+          uv sync
 
       - name: Ansible Syntax Check
         run: |
-          ansible-playbook --syntax-check playbooks/*.yml -i inventory/ospf_lab.yml
-
-      - name: Dry-run (Check Mode)
-        run: |
-          ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml --check
+          uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/ospf_lab.yml
 
   deploy:
-    name: Deploy Configuration
     runs-on: self-hosted
     needs: validate
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Run Playbooks
+      - name: Install uv
         run: |
-          ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Sync dependencies with uv
+        run: |
+          uv sync
+
+      - name: Deploy configs
+        run: |
+          uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml
 
   test:
-    name: Verify with pyATS
     runs-on: self-hosted
     needs: deploy
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Run pyATS test cases
+      - name: Install uv
         run: |
-          source .venv/bin/activate
-          pyats run job tests/job.py
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Sync dependencies with uv
+        run: |
+          uv sync
+
+      - name: Run pyATS tests
+        run: |
+          uv run pyats run job tests/job.py
 
