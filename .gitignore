@@ -57,3 +57,12 @@ uv.lock
 .DS_Store
 Thumbs.db
 
+# -------------------------
+# Github runner root
+# -------------------------
+actions-runner/
+
+# -------------------------
+# pyats testbed.yaml
+# -------------------------
+testbed.yaml

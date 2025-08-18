@@ -1,0 +1,66 @@
+name: NetDevOps CI/CD
+
+on:
+  push:
+    paths:
+      - 'playbooks/**'
+      - 'configs/**'
+      - 'inventory/**'
+      - 'ansible.cfg'
+      - 'requirements.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Playbooks & Configs
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt || true
+          pip install pyats genie
+
+      - name: Ansible Syntax Check
+        run: |
+          ansible-playbook --syntax-check playbooks/*.yml -i inventory/ospf_lab.yml
+
+      - name: Dry-run (Check Mode)
+        run: |
+          ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml --check
+
+  deploy:
+    name: Deploy Configuration
+    runs-on: self-hosted
+    needs: validate
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run Playbooks
+        run: |
+          ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml
+
+  test:
+    name: Verify with pyATS
+    runs-on: self-hosted
+    needs: deploy
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run pyATS test cases
+        run: |
+          source .venv/bin/activate
+          pyats run job tests/job.py
+

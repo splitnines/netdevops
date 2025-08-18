@@ -8,5 +8,6 @@ dependencies = [
     "ansible>=11.9.0",
     "ansible-pylibssh>=1.2.2",
     "paramiko>=4.0.0",
+    "pyats[full]>=25.7",
     "python-dotenv>=1.1.1",
 ]
