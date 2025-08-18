@@ -1,0 +1,59 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# -------------------------
+# Ansible-related
+# -------------------------
+# Ignore transient backups of running configs
+backups/
+
+# Ansible facts cache
+.cache/
+
+# Installed Galaxy collections (rebuild from requirements.yml)
+collections/
+
+# Retry files created when playbooks fail
+*.retry
+
+# Vault password files (if any are created locally)
+*.vault_pass.txt
+
+# -------------------------
+# Logs
+# -------------------------
+logs/
+*.log
+
+# -------------------------
+# Environment / Secrets
+# -------------------------
+.env
+.python-version
+
+# Python build system
+# -------------------------
+__pycache__/
+*.pyc
+.venv/
+.uv/
+
+# -------------------------
+# Lock files
+# -------------------------
+uv.lock
+
+# -------------------------
+# OS / Editor junk
+# -------------------------
+.DS_Store
+Thumbs.db
+

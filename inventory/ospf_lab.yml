@@ -1,0 +1,8 @@
+all:
+  children:
+    iosxe:
+      hosts:
+        r1:
+          ansible_host: 10.0.0.248
+        sw2-1:
+           ansible_host: 10.2.1.1
