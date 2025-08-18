@@ -5,10 +5,10 @@ ansible_network_os: cisco.ios.ios
 # ansible_user: "{{ vault_ios_user }}"
 # ansible_password: "{{ vault_ios_pass }}"
 # ansible_become_password: "{{ vault_ios_enable }}"
-# ansible_user: "cisco"
-# ansible_password: "cisco"
-ansible_user: "{{ lookup('env', 'CISCO_USER') }}"
-ansible_password: "{{ lookup('env', 'CISCO_PASS') }}"
+ansible_user: "cisco"
+ansible_password: "cisco"
+# ansible_user: "{{ lookup('env', 'CISCO_USER') }}"
+# ansible_password: "{{ lookup('env', 'CISCO_PASS') }}"
 
 ansible_command_timeout: 60
 ansible_connect_timeout: 60
