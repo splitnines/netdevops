@@ -21,6 +21,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Activate venv
+        run: |
+          source .venv/bin/activate
+          which ansible-palybook
+          ansible-playbook --version
+
+      - name: Ansible Syntax Check
+        run: |
+          source .venv/bin/activate
+          ansible-playbook --syntax-check playbooks/*.yml -i inventrory/ospf_lab.yml
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
