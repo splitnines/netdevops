@@ -1,5 +1,4 @@
 ---
-# Testingrassia
 - name: Push config to Cisco IOS-XE devices
   hosts: iosxe
   gather_facts: no

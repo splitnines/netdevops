@@ -80,6 +80,6 @@ jobs:
 
       - name: Run pyATS tests
         run: |
-          uv run pyats run job tests/job.py --no-mail --no-archive --testbed-file ./testbed.yaml
+          uv run pyats run job tests/job.py --no-mail --no-archive --testbed ../testbed.yaml
         continue-on-error: true
 
