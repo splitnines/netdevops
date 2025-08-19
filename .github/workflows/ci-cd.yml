@@ -91,7 +91,7 @@ jobs:
       - name: Download Backup Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: isoxe-config-backups
+          name: iosxe-config-backups
           path: backups/
 
   Tests:
