@@ -13,9 +13,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  CISCO_USER: ${{ secrets.CISCO_USER }}
-  CISCO_PASS: ${{ secrets.CSICO_USER }}
 
 jobs:
   Validate:
@@ -44,6 +41,9 @@ jobs:
 
   Backup:
     runs-on: self-hosted
+    env:
+      CISCO_USER: ${{ secrets.CISCO_USER }}
+      CISCO_PASS: ${{ secrets.CSICO_USER }}
     needs: Validate
     steps:
       - name: Checkout Repo
@@ -73,6 +73,9 @@ jobs:
 
   Deploy:
     runs-on: self-hosted
+    env:
+      CISCO_USER: ${{ secrets.CISCO_USER }}
+      CISCO_PASS: ${{ secrets.CSICO_USER }}
     needs: Backup
     steps:
       - name: Checkout Repo
@@ -99,6 +102,9 @@ jobs:
 
   Tests:
     runs-on: self-hosted
+    env:
+      CISCO_USER: ${{ secrets.CISCO_USER }}
+      CISCO_PASS: ${{ secrets.CSICO_USER }}
     needs: Deploy
     steps:
       - name: Checkout Repo
