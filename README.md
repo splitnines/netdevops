@@ -52,7 +52,7 @@ cp .env.example .env
 
 ### Inventory
 Device inventory is defined under `inventory/`.  
-Example: `inventory/ospf_lab.yml`
+Example: `inventory/lab.yml`
 
 Update this file with the IPs/hostnames of your own devices.
 
