@@ -63,7 +63,7 @@ jobs:
           uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/01_config_backup.yml
 
       - name: Upload Backup Artifacts
-        uses: actions/upload-artifacts@v4
+        uses: actions/upload-artifact@v4
         with:
           name: iosxe-config-backups
           path: backups/
@@ -89,7 +89,7 @@ jobs:
           uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml
 
       - name: Download Backup Artifacts
-        uses: actions/download-artifacts@v4
+        uses: actions/download-artifact@v4
         with:
           name: isoxe-config-backups
           path: backups/
