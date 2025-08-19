@@ -71,16 +71,6 @@ jobs:
         run: |
           cp -v backups/* ~/Scripts/myAnsible/backups/
 
-      # - name: List backups after playbook
-      #   run: |
-      #     ls -R backups || echo "No backups found"
-
-      # - name: Upload Backup Artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: iosxe-config-backups
-      #     path: backups/
-
   Deploy:
     runs-on: self-hosted
     needs: Backup
@@ -125,4 +115,5 @@ jobs:
 
       - name: Run pyATS Tests
         run: |
-          uv run pyats run job tests/job.py --no-mail --no-archive --testbed tests/testbed.yaml
+          # uv run pyats run job tests/job.py --no-mail --no-archive --testbed tests/testbed.yaml
+          uv run pyats run job tests/job.py --no-mail --no-archive
