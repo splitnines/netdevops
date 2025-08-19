@@ -1,5 +1,11 @@
 from pyats.easypy import run
 
 
+# def main(runtime):
+#     run(testscript="tests/verify_ntp.py", testbed="testbed.yaml")
+
+
 def main(runtime):
-    run(testscript="tests/verify_ntp.py", testbed="testbed.yaml")
+    runtime.job.name = "verify_ntp.py"
+
+    run(testscript="tests/verify_ntp.py", runtime=runtime)
