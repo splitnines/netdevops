@@ -43,7 +43,7 @@ jobs:
     runs-on: self-hosted
     env:
       CISCO_USER: ${{ secrets.CISCO_USER }}
-      CISCO_PASS: ${{ secrets.CSICO_USER }}
+      CISCO_PASS: ${{ secrets.CISCO_USER }}
     needs: Validate
     steps:
       - name: Checkout Repo
@@ -75,7 +75,7 @@ jobs:
     runs-on: self-hosted
     env:
       CISCO_USER: ${{ secrets.CISCO_USER }}
-      CISCO_PASS: ${{ secrets.CSICO_USER }}
+      CISCO_PASS: ${{ secrets.CISCO_USER }}
     needs: Backup
     steps:
       - name: Checkout Repo
@@ -104,7 +104,7 @@ jobs:
     runs-on: self-hosted
     env:
       CISCO_USER: ${{ secrets.CISCO_USER }}
-      CISCO_PASS: ${{ secrets.CSICO_USER }}
+      CISCO_PASS: ${{ secrets.CISCO_USER }}
     needs: Deploy
     steps:
       - name: Checkout Repo
