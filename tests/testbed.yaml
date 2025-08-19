@@ -2,8 +2,8 @@ testbed:
   name: ospf_lab
   credentials:
     default:
-      username: cisco
-      password: cisco
+      username: "%ENV{CISCO_USER}"
+      password: "%ENV{CISCO_PASS}"
 
 devices:
   r1:
