@@ -12,7 +12,7 @@ log.info(banner("pyATS TDD Automated Network Testing"))
 
 console = Console()
 
-WORKING_DIR = "/home/rickey/Scripts/python/pyats/"
+WORKING_DIR = "/home/rickey/Scripts/myAnsible/"
 
 
 class CommonSetup(aetest.CommonSetup):
@@ -137,7 +137,9 @@ class TestNtpAssociationsReach(aetest.Testcase):
             table_str = capture.get()
             log.info(table_str)
             self.failed(
-                f"test_ntp_association_clock_state for {self.device.name} FAILED"
+                f"test_ntp_association_clock_state for {
+                    self.device.name
+                } FAILED"
             )
         else:
             table.add_row(
