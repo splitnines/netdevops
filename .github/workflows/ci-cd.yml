@@ -74,6 +74,13 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+ 
+      - name: Download Backup Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: iosxe-config-backups
+          path: backups/
+          uses: actions/checkout@v4
 
       - name: Install uv
         run: |
@@ -87,12 +94,6 @@ jobs:
       - name: Deploy Changes
         run: |
           uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml
-
-      - name: Download Backup Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: iosxe-config-backups
-          path: backups/
 
   Tests:
     runs-on: self-hosted
