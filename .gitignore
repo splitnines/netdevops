@@ -13,7 +13,7 @@ wheels/
 # Ansible-related
 # -------------------------
 # Ignore transient backups of running configs
-backups/*.log
+# backups/*.log
 
 # Ansible facts cache
 .cache/
