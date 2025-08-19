@@ -28,6 +28,8 @@ class CommonSetup(aetest.CommonSetup):
 
     @aetest.subsection
     def loop_mark(self, testbed):
+        if isinstance(testbed, str):
+            testbed = load(testbed)
         aetest.loop.mark(TestNtpAssociationsReach, device_name=testbed.devices)
 
 
@@ -237,6 +239,8 @@ class TestNtpAssociationsReach(aetest.Testcase):
 class CommonCleanup(aetest.CommonCleanup):
     @aetest.subsection
     def disconnect_from_devices(self, testbed):
+        if isinstance(testbed, str):
+            testbed = load(testbed)
         testbed.disconnect()
 
 
