@@ -5,7 +5,7 @@ def main(runtime):
     runtime.job.name = "verify_ntp.py"
 
     run(
-        testscript="verify_ntp.py",
-        testbed="../testbed.yaml",
+        testscript="tests/verify_ntp.py",
+        testbed="testbed.yaml",
         runtime=runtime,
     )
