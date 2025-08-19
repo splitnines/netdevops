@@ -1,6 +1,4 @@
 import logging
-import os
-import yaml
 from genie.testbed import load
 from rich.console import Console
 from rich.table import Table
@@ -13,31 +11,21 @@ log.info(banner("pyATS TDD Automated Network Testing"))
 
 console = Console()
 
-WORKING_DIR = "/home/rickey/Scripts/myAnsible/"
-
 
 class CommonSetup(aetest.CommonSetup):
     @aetest.subsection
     def connect_to_devices(self, testbed):
         """Connect to all the devices"""
-        if isinstance(testbed, str):
-            testbed = load(testbed)
-
-        self.parent.parameters["testbed"] = testbed
         testbed.connect(log_stdout=False)
 
     @aetest.subsection
     def loop_mark(self, testbed):
-        if isinstance(testbed, str):
-            testbed = load(testbed)
         aetest.loop.mark(TestNtpAssociationsReach, device_name=testbed.devices)
 
 
 class TestNtpAssociationsReach(aetest.Testcase):
     @aetest.test
     def setup(self, testbed, device_name):
-        if isinstance(testbed, str):
-            testbed = load(testbed)
         self.device = testbed.devices[device_name]
 
     @aetest.test
@@ -166,8 +154,6 @@ class TestNtpAssociationsReach(aetest.Testcase):
 class CommonCleanup(aetest.CommonCleanup):
     @aetest.subsection
     def disconnect_from_devices(self, testbed):
-        if isinstance(testbed, str):
-            testbed = load(testbed)
         testbed.disconnect()
 
 
