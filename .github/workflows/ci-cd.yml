@@ -18,7 +18,7 @@ env:
   CISCO_PASS: ${{ secrets.CSICO_USER }}
 
 jobs:
-  Validate Playbooks:
+  Validate:
     runs-on: self-hosted
     steps:
       - name: Checkout repo
@@ -42,9 +42,9 @@ jobs:
         run: |
           uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/ospf_lab.yml
 
-  Configuation Backup:
+  Backup:
     runs-on: self-hosted
-    needs: Validate Playbooks
+    needs: Validate
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -68,9 +68,9 @@ jobs:
           name: iosxe-config-backups
           path: backups/
 
-  Deploy Configuration Changes:
+  Deploy:
     runs-on: self-hosted
-    needs: Configuration Backup
+    needs: Backup
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -96,7 +96,7 @@ jobs:
 
   Tests:
     runs-on: self-hosted
-    needs: Deploy Configuration Changes
+    needs: Deploy
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
