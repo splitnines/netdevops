@@ -42,9 +42,29 @@ jobs:
         run: |
           uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/ospf_lab.yml
 
-  deploy:
+  backup:
     runs-on: self-hosted
     needs: validate
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Sync dependencies with uv
+        run: |
+          uv sync
+
+      - name: Backup configs
+        run: |
+          uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/01_config_backup.yml
+
+  deploy:
+    runs-on: self-hosted
+    needs: backup
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
