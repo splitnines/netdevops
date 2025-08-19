@@ -13,7 +13,7 @@ wheels/
 # Ansible-related
 # -------------------------
 # Ignore transient backups of running configs
-# backups/*.log
+backups/*
 
 # Ansible facts cache
 .cache/
@@ -61,4 +61,3 @@ Thumbs.db
 # Github runner root
 # -------------------------
 actions-runner/
-
