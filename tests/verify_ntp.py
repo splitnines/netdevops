@@ -1,6 +1,7 @@
 import logging
 import os
 import yaml
+from genie.testbed import load
 from rich.console import Console
 from rich.table import Table
 from pyats import aetest
@@ -19,6 +20,10 @@ class CommonSetup(aetest.CommonSetup):
     @aetest.subsection
     def connect_to_devices(self, testbed):
         """Connect to all the devices"""
+        if isinstance(testbed, str):
+            testbed = load(testbed)
+
+        self.parent.parameters["testbed"] = testbed
         testbed.connect(log_stdout=False)
 
     @aetest.subsection
