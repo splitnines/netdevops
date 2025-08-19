@@ -58,9 +58,18 @@ jobs:
         run: |
           uv sync
 
+      - name: Debug Working Directory
+        run: |
+          pwd
+          ls -al
+
       - name: Backup Configs
         run: |
           uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/01_config_backup.yml
+
+      - name: List backups after playbook
+        runs: |
+          ls -R backups || echo "No backups found"
 
       - name: Upload Backup Artifacts
         uses: actions/upload-artifact@v4
@@ -80,7 +89,6 @@ jobs:
         with:
           name: iosxe-config-backups
           path: backups/
-          uses: actions/checkout@v4
 
       - name: Install uv
         run: |
