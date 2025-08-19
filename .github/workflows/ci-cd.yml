@@ -67,6 +67,10 @@ jobs:
         run: |
           uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/01_config_backup.yml
 
+      - name: Copy Backups
+        run: |
+          cp -v backups/* ~/Scripts/myAnsible/backups/
+
       - name: List backups after playbook
         run: |
           ls -R backups || echo "No backups found"
