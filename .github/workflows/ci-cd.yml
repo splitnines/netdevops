@@ -58,10 +58,10 @@ jobs:
         run: |
           uv sync
 
-      - name: Debug Working Directory
-        run: |
-          pwd
-          ls -al
+      # - name: Debug Working Directory
+      #   run: |
+      #     pwd
+      #     ls -al
 
       - name: Backup Configs
         run: |
@@ -71,15 +71,15 @@ jobs:
         run: |
           cp -v backups/* ~/Scripts/myAnsible/backups/
 
-      - name: List backups after playbook
-        run: |
-          ls -R backups || echo "No backups found"
+      # - name: List backups after playbook
+      #   run: |
+      #     ls -R backups || echo "No backups found"
 
-      - name: Upload Backup Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: iosxe-config-backups
-          path: backups/
+      # - name: Upload Backup Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: iosxe-config-backups
+      #     path: backups/
 
   Deploy:
     runs-on: self-hosted
@@ -87,12 +87,12 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
- 
-      - name: Download Backup Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: iosxe-config-backups
-          path: backups/
+      #
+      # - name: Download Backup Artifacts
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: iosxe-config-backups
+      #     path: backups/
 
       - name: Install uv
         run: |
