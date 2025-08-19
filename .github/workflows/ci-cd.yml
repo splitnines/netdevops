@@ -119,6 +119,11 @@ jobs:
         run: |
           uv sync
 
+      - name: Export env vars for pyATS
+        run: |
+          echo "CISCO_USER=${CISCO_USER}" >> $GITHUB_ENV
+          echo "CISCO_PASS=${CISCO_PASS}" >> $GITHUB_ENV
+
       - name: Run pyATS Tests
         run: |
           # uv run pyats run job tests/job.py --no-mail --no-archive --testbed tests/testbed.yaml
