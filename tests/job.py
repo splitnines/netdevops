@@ -6,6 +6,6 @@ def main(runtime):
 
     run(
         testscript="tests/verify_ntp.py",
-        testbed="testbed.yaml",
+        # testbed="testbed.yaml",
         runtime=runtime,
     )
