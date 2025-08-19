@@ -72,7 +72,7 @@ ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
 
 ### Run pyATS Job
 ```bash
-uv run pyats run job tests/job.py --testbed testbed.yaml
+uv run pyats run job tests/job.py
 ```
 
 ---
