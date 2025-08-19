@@ -36,6 +36,8 @@ class CommonSetup(aetest.CommonSetup):
 class TestNtpAssociationsReach(aetest.Testcase):
     @aetest.test
     def setup(self, testbed, device_name):
+        if isinstance(testbed, str):
+            testbed = load(testbed)
         self.device = testbed.devices[device_name]
 
     @aetest.test
