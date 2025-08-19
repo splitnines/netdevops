@@ -62,7 +62,3 @@ Thumbs.db
 # -------------------------
 actions-runner/
 
-# -------------------------
-# pyats testbed.yaml
-# -------------------------
-testbed.yaml
