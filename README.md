@@ -62,12 +62,12 @@ Update this file with the IPs/hostnames of your own devices.
 
 ### Backup Configurations
 ```bash
-ansible-playbook -i inventory/ospf_lab.yml playbooks/01_config_backup.yml
+ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
 ```
 
 ### Apply NTP Configuration
 ```bash
-ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml
+ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
 ```
 
 ### Run pyATS Job
@@ -110,7 +110,7 @@ pytest
 
 ## ✅ Requirements
 
-- Python 3.10+
+- Python 3.13+
 - [uv](https://github.com/astral-sh/uv) (recommended) or pip
 - Cisco IOS-XE devices reachable via SSH
 

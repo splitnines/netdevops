@@ -37,7 +37,7 @@ jobs:
 
       - name: Ansible Syntax Check
         run: |
-          uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/ospf_lab.yml
+          uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
 
   Backup:
     runs-on: self-hosted
@@ -65,7 +65,7 @@ jobs:
 
       - name: Backup Configs
         run: |
-          uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/01_config_backup.yml
+          uv run ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
 
       - name: Copy Backups
         run: |
@@ -98,7 +98,7 @@ jobs:
 
       - name: Deploy Changes
         run: |
-          uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml
+          uv run ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
 
   Tests:
     runs-on: self-hosted
