@@ -68,7 +68,7 @@ jobs:
           uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/01_config_backup.yml
 
       - name: List backups after playbook
-        runs: |
+        run: |
           ls -R backups || echo "No backups found"
 
       - name: Upload Backup Artifacts
