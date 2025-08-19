@@ -18,7 +18,7 @@ env:
   CISCO_PASS: ${{ secrets.CSICO_USER }}
 
 jobs:
-  validate:
+  Validate Playbooks:
     runs-on: self-hosted
     steps:
       - name: Checkout repo
@@ -42,11 +42,11 @@ jobs:
         run: |
           uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/ospf_lab.yml
 
-  backup:
+  Configuation Backup:
     runs-on: self-hosted
-    needs: validate
+    needs: Validate Playbooks
     steps:
-      - name: Checkout repo
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
       - name: Install uv
@@ -54,19 +54,25 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Sync dependencies with uv
+      - name: Sync Dependencies With uv
         run: |
           uv sync
 
-      - name: Backup configs
+      - name: Backup Configs
         run: |
           uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/01_config_backup.yml
 
-  deploy:
+      - name: Upload Backup Artifacts
+        uses: actions/upload-artifacts@v4
+        with:
+          name: iosxe-config-backups
+          path: backups/
+
+  Deploy Configuration Changes:
     runs-on: self-hosted
-    needs: backup
+    needs: Configuration Backup
     steps:
-      - name: Checkout repo
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
       - name: Install uv
@@ -74,19 +80,25 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Sync dependencies with uv
+      - name: Sync Dependencies With uv
         run: |
           uv sync
 
-      - name: Deploy configs
+      - name: Deploy Changes
         run: |
           uv run ansible-playbook -i inventory/ospf_lab.yml playbooks/02_ntp_config.yml
 
-  test:
+      - name: Download Backup Artifacts
+        uses: actions/download-artifacts@v4
+        with:
+          name: isoxe-config-backups
+          path: backups/
+
+  Tests:
     runs-on: self-hosted
-    needs: deploy
+    needs: Deploy Configuration Changes
     steps:
-      - name: Checkout repo
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
       - name: Install uv
@@ -94,10 +106,10 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Sync dependencies with uv
+      - name: Sync Dependencies With uv
         run: |
           uv sync
 
-      - name: Run pyATS tests
+      - name: Run pyATS Tests
         run: |
           uv run pyats run job tests/job.py --no-mail --no-archive --testbed tests/testbed.yaml
