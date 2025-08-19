@@ -8,6 +8,7 @@ on:
       - 'inventory/**'
       - 'ansible.cfg'
       - 'requirements.yml'
+      - 'test/**'
     branches:
       - main
   workflow_dispatch:
@@ -79,5 +80,5 @@ jobs:
 
       - name: Run pyATS tests
         run: |
-          uv run pyats run job tests/job.py
+          uv run pyats run job tests/job.py --no-mail --no-archive --testbed ../testbed.yaml
 
