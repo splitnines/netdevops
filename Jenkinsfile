@@ -106,9 +106,10 @@ pipeline {
     
                 githubNotify(
                     context: 'CI Pipeline',
-                    credentialsId: 'github-token',   // reference only
-                    repo: 'splitnines/netdevops',
+                    account: 'splitnines',
+                    repo: 'netdevops',
                     sha: commitSha,
+                    credentialsId: 'github-token',
                     status: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE',
                     description: "Build finished with status ${currentBuild.currentResult}"
                 )
