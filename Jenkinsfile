@@ -3,60 +3,54 @@ pipeline {
     environment {
         CISCO_USER = credentials('cisco_user')
         CISCO_PASS = credentials('cisco_pass')
-        PATH = "/root/.local/bin:$PATH"
+        VENV = ".venv"
     }
     stages {
-        stage('Setup tools') {
+        stage('Setup Python') {
             steps {
                 sh '''
-                    if ! command -v uv >/dev/null 2>&1; then
-                        echo "[+] Installing uv"
-                        curl -LsSf https://astral.sh/uv/install.sh | sh
-                    else
-                        echo "[+] uv already installed"
-                    fi
-
-                    # Ensure Python 3.11 is installed and used by uv
-                    export PATH=/root/.local/bin:$PATH
-                    uv python install 3.11
-                    uv venv --python 3.11
-
-		    # Install system deps needed to compile ansible-pylibssh
                     apt-get update
-                    apt-get install -y build-essential libssl-dev libffi-dev libssh-dev cmake pkg-config python3-dev
+                    apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip build-essential libssl-dev libffi-dev libssh-dev cmake pkg-config
+                    python3.11 -m venv $VENV
+                    . $VENV/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
                 '''
             }
         }
+
         stage('Validate') {
             steps {
                 sh '''
-                    export PATH=/root/.local/bin:$PATH
-                    uv sync
-                    uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
+                    . $VENV/bin/activate
+                    ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
                 '''
             }
         }
+
         stage('Backup') {
             steps {
                 sh '''
-                    export PATH=/root/.local/bin:$PATH
-                    uv run ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
+                    . $VENV/bin/activate
+                    ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
                 '''
             }
         }
+
         stage('Deploy') {
             steps {
                 sh '''
-                    export PATH=/root/.local/bin:$PATH
-                    uv run ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
+                    . $VENV/bin/activate
+                    ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
                 '''
             }
         }
+
         stage('Tests') {
             steps {
                 sh '''
-                    export PATH=/root/.local/bin:$PATH
-                    uv run pyats run job tests/job.py --no-mail --no-archive
+                    . $VENV/bin/activate
+                    pyats run job tests/job.py --no-mail --no-archive
                 '''
             }
         }
