@@ -37,7 +37,6 @@ logs/
 # Environment / Secrets
 # -------------------------
 .env
-.secrets
 .python-version
 
 # Python build system
