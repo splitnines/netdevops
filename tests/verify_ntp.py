@@ -134,9 +134,8 @@ class TestNtpAssociationsReach(aetest.Testcase):
             table_str = capture.get()
             log.info(table_str)
             self.failed(
-                f"test_ntp_association_clock_state for {
-                    self.device.name
-                } FAILED"
+                "test_ntp_association_clock_state for "
+                f"{self.device.name} FAILED"
             )
         else:
             table.add_row(
