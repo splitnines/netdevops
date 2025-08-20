@@ -37,6 +37,7 @@ logs/
 # Environment / Secrets
 # -------------------------
 .env
+.github_pat_token
 .python-version
 
 # Python build system
