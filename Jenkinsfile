@@ -8,14 +8,16 @@ pipeline {
     stages {
         stage('Setup Python') {
             steps {
-                sh '''
-                    apt-get update
-                    apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip build-essential libssl-dev libffi-dev libssh-dev cmake pkg-config
-                    python3.11 -m venv $VENV
-                    . $VENV/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                '''
+		dir("${WORKSPACE}") {
+                    sh '''
+                        apt-get update
+                        apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip build-essential libssl-dev libffi-dev libssh-dev cmake pkg-config
+                        python3.11 -m venv $VENV
+                        . $VENV/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                    '''
+		}
             }
         }
 
