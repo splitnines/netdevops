@@ -120,4 +120,20 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            script {
+                def commitSha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+    
+                githubNotify(
+                    context: 'CI Pipeline',
+                    credentialsId: 'github-token',   // reference only
+                    repo: 'splitnines/netdevops',
+                    sha: commitSha,
+                    status: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE',
+                    description: "Build finished with status ${currentBuild.currentResult}"
+                )
+            }
+        }
+    }
 }
