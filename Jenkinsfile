@@ -101,13 +101,7 @@ pipeline {
 
     post {
         always {
-            script {
-                setGitHubPullRequestStatus(
-                    context: 'CI Pipeline',
-                    state: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' :
-                           currentBuild.currentResult == 'FAILURE' ? 'FAILURE' : 'ERROR'
-                )
-            }
+            githubNotify context: 'CI Pipeline', status: currentBuild.currentResult
         }
     }
 }
