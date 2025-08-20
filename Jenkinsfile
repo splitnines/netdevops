@@ -105,7 +105,8 @@ pipeline {
                           title: "NetDevOps Jenkins Run",
                           summary: "Build finished with status: ${currentBuild.currentResult}",
                           detailsURL: env.BUILD_URL,
-                          conclusion: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE'
+                          conclusion: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE',
+                          checksPublisher: [$class: 'GitHubChecksPublisher', credentialsId: 'github-pat']
         }
     }
 }
