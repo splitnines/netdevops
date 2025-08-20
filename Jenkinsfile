@@ -21,6 +21,17 @@ pipeline {
             }
         }
 
+	stage('Prepare Logs') {
+	    steps {
+	        dir("${WORKSPACE}") {
+		    sh '''
+	                mkdir -p logs
+	                chmod 777 logs
+	            '''
+		}
+	    }
+	}
+
         stage('Validate') {
             steps {
                 sh '''
