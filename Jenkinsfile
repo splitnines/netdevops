@@ -18,8 +18,8 @@ pipeline {
 
                     # Ensure Python 3.11 is installed and used by uv
                     export PATH=/root/.local/bin:$PATH
-                    uv python install 3.11
-                    uv venv --python 3.11
+                    uv python install 3.10
+                    uv venv --python 3.10
                 '''
             }
         }
