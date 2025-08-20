@@ -3,7 +3,7 @@ pipeline {
     environment {
         CISCO_USER = credentials('cisco_user')
         CISCO_PASS = credentials('cisco_pass')
-        PATH = "$HOME/.cargo/bin:$PATH"
+        PATH = "/root/.local/bin:$PATH"
     }
     stages {
         stage('Setup tools') {
@@ -21,7 +21,7 @@ pipeline {
         stage('Validate') {
             steps {
                 sh '''
-                    export PATH=$HOME/.cargo/bin:$PATH
+                    export PATH=/root/.local/bin:$PATH
                     uv sync
                     uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
                 '''
@@ -30,7 +30,7 @@ pipeline {
         stage('Backup') {
             steps {
                 sh '''
-                    export PATH=$HOME/.cargo/bin:$PATH
+                    export PATH=/root/.local/bin:$PATH
                     uv run ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
                 '''
             }
@@ -38,7 +38,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    export PATH=$HOME/.cargo/bin:$PATH
+                    export PATH=/root/.local/bin:$PATH
                     uv run ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
                 '''
             }
@@ -46,7 +46,7 @@ pipeline {
         stage('Tests') {
             steps {
                 sh '''
-                    export PATH=$HOME/.cargo/bin:$PATH
+                    export PATH=/root/.local/bin:$PATH
                     uv run pyats run job tests/job.py --no-mail --no-archive
                 '''
             }
