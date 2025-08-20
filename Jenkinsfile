@@ -101,18 +101,6 @@ pipeline {
 
     post {
         always {
-            // mark commit as finished (success or failure)
-            githubNotify context: 'CI Pipeline', status: currentBuild.currentResult
-        }
-        failure {
-            githubNotify context: 'CI Pipeline', status: 'FAILURE'
-        }
-        success {
-            githubNotify context: 'CI Pipeline', status: 'SUCCESS'
-        }
-    }
-    post {
-        always {
             publishChecks name: 'CI Pipeline',
                           title: "NetDevOps Jenkins Run",
                           summary: "Build finished with status: ${currentBuild.currentResult}",
