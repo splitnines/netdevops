@@ -88,4 +88,22 @@ pipeline {
                 withCredentials([usernamePassword(
                     credentialsId: 'cisco_creds',
                     usernameVariable: 'CISCO_USER',
+                    passwordVariable: 'CISCO_PASS'
+                )]) {
+                    sh '''
+                        . $VENV/bin/activate
+                        pyats run job tests/job.py --no-mail --no-archive
+                    '''
+                }
+            }
+        }
+    }
 
+    post {
+        always {
+            githubNotify context: 'CI Pipeline',
+                         description: "NetDevOps Jenkins Run",
+                         status: currentBuild.currentResult
+        }
+    }
+}
