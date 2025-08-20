@@ -18,8 +18,12 @@ pipeline {
 
                     # Ensure Python 3.11 is installed and used by uv
                     export PATH=/root/.local/bin:$PATH
-                    uv python install 3.10
-                    uv venv --python 3.10
+                    uv python install 3.11
+                    uv venv --python 3.11
+
+		    # Install system deps needed to compile ansible-pylibssh
+                    apt-get update
+                    apt-get install -y build-essential libssl-dev libffi-dev libssh-dev cmake pkg-config python3-dev
                 '''
             }
         }
