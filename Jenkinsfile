@@ -111,4 +111,13 @@ pipeline {
             githubNotify context: 'CI Pipeline', status: 'SUCCESS'
         }
     }
+    post {
+        always {
+            publishChecks name: 'CI Pipeline',
+                          title: "NetDevOps Jenkins Run",
+                          summary: "Build finished with status: ${currentBuild.currentResult}",
+                          detailsURL: env.BUILD_URL,
+                          conclusion: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE'
+        }
+    }
 }
