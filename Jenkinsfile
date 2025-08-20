@@ -104,8 +104,8 @@ pipeline {
             script {
                 setGitHubPullRequestStatus(
                     context: 'CI Pipeline',
-                    status: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE',
-                    description: "NetDevOps Jenkins Run: ${currentBuild.currentResult}"
+                    state: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' :
+                           currentBuild.currentResult == 'FAILURE' ? 'FAILURE' : 'ERROR'
                 )
             }
         }
