@@ -102,27 +102,6 @@ pipeline {
     post {
         always {
             script {
-                def status = currentBuild.currentResult ?: 'SUCCESS'
-                // Map Jenkins results to GitHub statuses
-                switch(status) {
-                    case 'SUCCESS':
-                        githubNotify context: 'CI Pipeline', status: 'SUCCESS', description: 'Build passed'
-                        break
-                    case 'FAILURE':
-                        githubNotify context: 'CI Pipeline', status: 'FAILURE', description: 'Build failed'
-                        break
-                    case 'ABORTED':
-                        githubNotify context: 'CI Pipeline', status: 'ERROR', description: 'Build aborted'
-                        break
-                    default:
-                        githubNotify context: 'CI Pipeline', status: 'ERROR', description: "Build result: ${status}"
-                }
-            }
-        }
-    }
-    post {
-        always {
-            script {
                 def commitSha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
     
                 githubNotify(
