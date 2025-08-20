@@ -101,9 +101,13 @@ pipeline {
 
     post {
         always {
-            githubNotify context: 'CI Pipeline',
-                         description: "NetDevOps Jenkins Run",
-                         status: currentBuild.currentResult
+            script {
+                setGitHubPullRequestStatus(
+                    context: 'CI Pipeline',
+                    status: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE',
+                    description: "NetDevOps Jenkins Run: ${currentBuild.currentResult}"
+                )
+            }
         }
     }
 }
