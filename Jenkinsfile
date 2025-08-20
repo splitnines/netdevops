@@ -5,6 +5,15 @@ pipeline {
         CISCO_PASS = credentials('cisco_pass')
     }
     stages {
+	stage('Setup tools') {
+    	    steps {
+                sh '''
+                    curl -LsSf https://astral.sh/uv/install.sh | sh
+                    export PATH=$HOME/.cargo/bin:$PATH
+                    echo "PATH=$HOME/.cargo/bin:$PATH" >> $WORKSPACE/.env_path
+                '''
+            }
+        }
         stage('Validate') {
             steps {
                 sh 'uv sync'
