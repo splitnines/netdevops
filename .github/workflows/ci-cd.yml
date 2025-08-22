@@ -26,10 +26,18 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      # - name: Install uv
+      #   run: |
+      #     curl -LsSf https://astral.sh/uv/install.sh | sh
+      #     echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
 
       - name: Sync dependencies with uv
         run: |
@@ -43,25 +51,20 @@ jobs:
     runs-on: self-hosted
     env:
       CISCO_USER: ${{ secrets.CISCO_USER }}
-      CISCO_PASS: ${{ secrets.CISCO_USER }}
+      CISCO_PASS: ${{ secrets.CISCO_PASS }}
     needs: Validate
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      # - name: Install uv
+      #   run: |
+      #     curl -LsSf https://astral.sh/uv/install.sh | sh
+      #     echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Sync Dependencies With uv
         run: |
           uv sync
-
-      # - name: Debug Working Directory
-      #   run: |
-      #     pwd
-      #     ls -al
 
       - name: Backup Configs
         run: |
@@ -75,22 +78,16 @@ jobs:
     runs-on: self-hosted
     env:
       CISCO_USER: ${{ secrets.CISCO_USER }}
-      CISCO_PASS: ${{ secrets.CISCO_USER }}
+      CISCO_PASS: ${{ secrets.CISCO_PASS }}
     needs: Backup
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-      #
-      # - name: Download Backup Artifacts
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: iosxe-config-backups
-      #     path: backups/
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      # - name: Install uv
+      #   run: |
+      #     curl -LsSf https://astral.sh/uv/install.sh | sh
+      #     echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Sync Dependencies With uv
         run: |
@@ -104,16 +101,16 @@ jobs:
     runs-on: self-hosted
     env:
       CISCO_USER: ${{ secrets.CISCO_USER }}
-      CISCO_PASS: ${{ secrets.CISCO_USER }}
+      CISCO_PASS: ${{ secrets.CISCO_PASS }}
     needs: Deploy
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      # - name: Install uv
+      #   run: |
+      #     curl -LsSf https://astral.sh/uv/install.sh | sh
+      #     echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Sync Dependencies With uv
         run: |
@@ -126,5 +123,4 @@ jobs:
 
       - name: Run pyATS Tests
         run: |
-          # uv run pyats run job tests/job.py --no-mail --no-archive --testbed tests/testbed.yaml
           uv run pyats run job tests/job.py --no-mail --no-archive
