@@ -1,18 +1,19 @@
+def runStage() {
+    def changedFiles = sh(
+        script: "git diff --name-only HEAD~1 HEAD",
+        returnStdout: true
+    ).trim().split("\n")
+
+    return changedFiles.any {
+        it.startsWith("playbooks/") ||
+        it.startsWith("configs/")  ||
+        it.startsWith("test/")
+    }
+}
+
 pipeline {
     agent any
 
-    def runStage() {
-        def changedFiles = sh(
-            script: "git diff --name-only HEAD~1 HEAD",
-            returnStdout: true
-        ).trim().split("\n")
-    
-        return changedFiles.any {
-            it.startsWith("playbooks/") ||
-            it.startsWith("configs/")  ||
-            it.startsWith("test/")
-        }
-    }
 
     environment {
         VENV = ".venv"
