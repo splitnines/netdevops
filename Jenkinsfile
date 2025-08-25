@@ -49,8 +49,8 @@ pipeline {
 
             steps {
                 sh '''
-                    export CISCO_USER='$CISCO_CREDS_USR'
-                    export CISCO_PASS='$CISCO_CREDS_PSW' 
+                    export CISCO_USER=$CISCO_CREDS_USR
+                    export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
                     ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
                 '''
