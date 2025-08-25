@@ -7,9 +7,14 @@ pipeline {
 
     stages {
         stage('Setup Python') {
+            environment {
+                CISCO_CREDS = credentials('cisco_creds')
+            }
             steps {
                 dir("${WORKSPACE}") {
                     sh '''
+                        export CISCO_USER=$CISCO_CREDS_USR
+                        export CISCO_PASS=$CISCO_CREDS_PSW 
                         apt-get update
                         apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip build-essential libssl-dev libffi-dev libssh-dev cmake pkg-config
                         python3.11 -m venv $VENV
@@ -42,15 +47,8 @@ pipeline {
         }
 
         stage('Backup') {
-
-            environment {
-                CISCO_CREDS = credentials('cisco_creds')
-            }
-
             steps {
                 sh '''
-                    export CISCO_USER=$CISCO_CREDS_USR
-                    export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
                     ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
                 '''
