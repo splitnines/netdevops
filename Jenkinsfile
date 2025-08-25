@@ -132,7 +132,6 @@ pipeline {
         stage('Archive Backups') {
             when {
                 expression { runStage() }
-                }
             }
             steps {
                 archiveArtifacts artifacts: 'backups/*.log', fingerprint: true
