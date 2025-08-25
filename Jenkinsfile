@@ -33,11 +33,6 @@ pipeline {
         }
 
         stage('Validate') {
-            environment {
-                CISCO_CREDS = credentials('cisco_creds')
-                CISCO_USER = '$CISCO_CREDS_USR'
-                CISCO_PASS = '$CISCO_CREDS_PSW'
-            }
             steps {
                 sh '''
                     . $VENV/bin/activate
@@ -47,16 +42,18 @@ pipeline {
         }
 
         stage('Backup') {
+
             environment {
                 CISCO_CREDS = credentials('cisco_creds')
-                CISCO_USER = '$CISCO_CREDS_USR'
-                CISCO_PASS = '$CISCO_CREDS_PSW'
             }
+
             steps {
-                sh '''
+                sh('''
+                    export CISCO_USER='$CISCO_CREDS_USR'
+                    export CISCO_PASS='$CISCO_CREDS_PSW' 
                     . $VENV/bin/activate
                     ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
-                '''
+                ''')
             }
         }
 
