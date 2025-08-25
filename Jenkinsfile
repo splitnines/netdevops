@@ -43,9 +43,6 @@ pipeline {
         }
 
         stage('Backup') {
-            // environment {
-            //     CISCO_CREDS = credentials('cisco_creds')
-            // }
             steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
@@ -57,9 +54,6 @@ pipeline {
         }
 
         stage('Deploy') {
-            environment {
-                CISCO_CREDS = credentials('cisco_creds')
-            }
             steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
@@ -71,9 +65,6 @@ pipeline {
         }
 
         stage('Tests') {
-            environment {
-                CISCO_CREDS = credentials('cisco_creds')
-            }
             steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
