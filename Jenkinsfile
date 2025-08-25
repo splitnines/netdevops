@@ -86,19 +86,28 @@ pipeline {
 
     post {
         always {
-            script {
-                def commitSha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-
-                githubNotify(
-                    context: 'CI Pipeline',
-                    account: 'splitnines',
-                    repo: 'netdevops',
-                    sha: commitSha,
-                    credentialsId: 'NetDevOps',
-                    status: currentBuild.currentResult,
-                    description: "Build finished with status ${currentBuild.currentResult}"
-                )
-            }
+            gihubNotify(
+                context: 'text',
+                credentialsId: 'NetDevOps',
+                status: 'SUCCESS'
+            )
         }
     }
+    // post {
+    //     always {
+    //         script {
+    //             def commitSha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+    //
+    //             githubNotify(
+    //                 context: 'CI Pipeline',
+    //                 account: 'splitnines',
+    //                 repo: 'netdevops',
+    //                 sha: commitSha,
+    //                 credentialsId: 'NetDevOps',
+    //                 status: currentBuild.currentResult,
+    //                 description: "Build finished with status ${currentBuild.currentResult}"
+    //             )
+    //         }
+    //     }
+    // }
 }
