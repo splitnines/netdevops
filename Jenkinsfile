@@ -61,6 +61,20 @@ pipeline {
         }
 
         stage('Archive Backups') {
+            when {
+                expression {
+                    def changedFiles = sh(
+                        script: "git diff --name-only HEAD~1 HEAD",
+                        returnStdout: true
+                    ).trim().split("\n")
+
+                    return changedFiles.any {
+                        it.startsWith("playbooks/") ||
+                        it.startsWith("configs/") ||
+                        it.startsWith("test/")
+                    }
+                }
+            }
             steps {
                 archiveArtifacts artifacts: 'backups/*.log', fingerprint: true
             }
