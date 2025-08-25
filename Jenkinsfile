@@ -1,3 +1,7 @@
+properties([
+    checksPublisher()
+])
+
 // Returns a bool based on any changes to the repo in
 // predefined directories
 def runStage() {
@@ -125,22 +129,22 @@ pipeline {
                     pyats run job tests/job.py --no-mail --no-archive
                 '''
             }
-            post {
-                always {
-                    script {
-                        def sha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-                        githubNotify(
-                            context: "Validate",
-                            account: "splitnines",         // your GitHub org/user
-                            repo: "netdevops",             // your repo name
-                            sha: sha,                      // commit SHA
-                            credentialsId: "github_token", // Jenkins credential with PAT or GitHub App token
-                            status: currentBuild.currentResult,
-                            description: "Pipeline finished with ${currentBuild.currentResult}"
-                        )
-                    }
-                }
-            }
+            // post {
+            //     always {
+            //         script {
+            //             def sha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+            //             githubNotify(
+            //                 context: "Validate",
+            //                 account: "splitnines",         // your GitHub org/user
+            //                 repo: "netdevops",             // your repo name
+            //                 sha: sha,                      // commit SHA
+            //                 credentialsId: "github_token", // Jenkins credential with PAT or GitHub App token
+            //                 status: currentBuild.currentResult,
+            //                 description: "Pipeline finished with ${currentBuild.currentResult}"
+            //             )
+            //         }
+            //     }
+            // }
         }
     }
 }
