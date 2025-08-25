@@ -15,6 +15,9 @@ wheels/
 # Ignore transient backups of running configs
 backups/*.log
 
+# Docker compose
+docker-compose.yml
+
 # Ansible facts cache
 .cache/
 
