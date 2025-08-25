@@ -60,6 +60,12 @@ pipeline {
             }
         }
 
+        stage('Archive Backups') {
+            steps {
+                archiveArtifacts artifacts 'backups/*.log', fingerprint: true
+            }
+        }
+
         stage('Deploy') {
             steps {
                 sh '''
