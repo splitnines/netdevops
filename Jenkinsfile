@@ -62,7 +62,7 @@ pipeline {
 
         stage('Archive Backups') {
             steps {
-                archiveArtifacts artifacts 'backups/*.log', fingerprint: true
+                archiveArtifacts artifacts: 'backups/*.log', fingerprint: true
             }
         }
 
