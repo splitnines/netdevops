@@ -127,4 +127,21 @@ pipeline {
             }
         }
     }
+    post {
+      always {
+        script {
+          def sha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+    
+          githubNotify(
+            context: "CI Pipeline",
+            account: "splitnines",
+            repo: "netdevops",
+            sha: sha,
+            credentialsId: "NetDevOps",
+            status: currentBuild.currentResult,
+            description: "Pipeline ${currentBuild.currentResult} at stage: ${currentBuild.currentStage}"
+          )
+        }
+      }
+    }
 }
