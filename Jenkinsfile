@@ -1,7 +1,3 @@
-properties([
-    checksPublisher()
-])
-
 // Returns a bool based on any changes to the repo in
 // predefined directories
 def runStage() {
