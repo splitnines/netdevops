@@ -94,7 +94,7 @@ pipeline {
                     account: 'splitnines',
                     repo: 'netdevops',
                     sha: commitSha,
-                    credentialsId: 'NetDevOps',
+                    credentialsId: 'c00cc3ac-f8df-4da7-98bc-032938337328',
                     status: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE',
                     description: "Build finished with status ${currentBuild.currentResult}"
                 )
