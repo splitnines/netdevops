@@ -6,6 +6,11 @@ pipeline {
     }
 
     stages {
+        enviroment {
+            CISCO_CREDS = credentials('cisco_creds')
+            CISCO_USER = CISCO_CREDS_USR
+            CISCO_PASS = CISCO_CREDS_PSW
+        }
         stage('Setup Python') {
             steps {
                 withCredentials([usernamePassword(
@@ -40,16 +45,20 @@ pipeline {
 
         stage('Validate') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'cisco_creds',
-                    usernameVariable: 'CISCO_USER',
-                    passwordVariable: 'CISCO_PASS'
-                )]) {
-                    sh '''
-                        . $VENV/bin/activate
-                        ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
-                    '''
-                }
+                // withCredentials([usernamePassword(
+                //     credentialsId: 'cisco_creds',
+                //     usernameVariable: 'CISCO_USER',
+                //     passwordVariable: 'CISCO_PASS'
+                // )]) {
+                //     sh '''
+                //         . $VENV/bin/activate
+                //         ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
+                //     '''
+                // }
+                sh '''
+                    . $VENV/bin/activate
+                    ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
+                '''
             }
         }
 
