@@ -76,7 +76,6 @@ pipeline {
         }
 
         stage('Validate') {
-            steps {
             when {
                 expression {
                     def changedFiles = sh(
@@ -91,6 +90,7 @@ pipeline {
                     }
                 }
             }
+            steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
                     export CISCO_PASS=$CISCO_CREDS_PSW 
