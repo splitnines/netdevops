@@ -66,6 +66,7 @@ pipeline {
                 CISCO_USER = '$CISCO_CREDS_USR'
                 CISCO_PASS = '$CISCO_CREDS_PSW'
             }
+            steps {
                 sh '''
                     . $VENV/bin/activate
                     ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
