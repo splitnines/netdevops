@@ -56,8 +56,13 @@ pipeline {
         }
 
         stage('Deploy') {
+            environment {
+                CISCO_CREDS = credentials('cisco_creds')
+            }
             steps {
                 sh '''
+                    export CISCO_USER=$CISCO_CREDS_USR
+                    export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
                     ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
                 '''
@@ -65,8 +70,13 @@ pipeline {
         }
 
         stage('Tests') {
+            environment {
+                CISCO_CREDS = credentials('cisco_creds')
+            }
             steps {
                 sh '''
+                    export CISCO_USER=$CISCO_CREDS_USR
+                    export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
                     pyats run job tests/job.py --no-mail --no-archive
                 '''
@@ -74,21 +84,21 @@ pipeline {
         }
     }
 
-    // post {
-    //     always {
-    //         script {
-    //             def commitSha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-    //
-    //             githubNotify(
-    //                 context: 'CI Pipeline',
-    //                 account: 'splitnines',
-    //                 repo: 'netdevops',
-    //                 sha: commitSha,
-    //                 credentialsId: 'NetDevOps',
-    //                 status: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE',
-    //                 description: "Build finished with status ${currentBuild.currentResult}"
-    //             )
-    //         }
-    //     }
-    // }
+    post {
+        always {
+            script {
+                def commitSha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+
+                githubNotify(
+                    context: 'CI Pipeline',
+                    account: 'splitnines',
+                    repo: 'netdevops',
+                    sha: commitSha,
+                    credentialsId: 'NetDevOps',
+                    status: currentBuild.currentResult == 'SUCCESS' ? 'SUCCESS' : 'FAILURE',
+                    description: "Build finished with status ${currentBuild.currentResult}"
+                )
+            }
+        }
+    }
 }
