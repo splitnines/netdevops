@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         VENV = ".venv"
+        CISCO_CREDS = credentials('cisco_creds')
     }
 
     stages {
@@ -42,9 +43,9 @@ pipeline {
         }
 
         stage('Backup') {
-            environment {
-                CISCO_CREDS = credentials('cisco_creds')
-            }
+            // environment {
+            //     CISCO_CREDS = credentials('cisco_creds')
+            // }
             steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
@@ -84,23 +85,23 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            script {
-                def commitSha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-    
-                githubNotify(
-                    context: 'CI Pipeline',
-                    account: 'splitnines',
-                    repo: 'netdevops',
-                    sha: commitSha,
-                    credentialsId: 'NetDevOps',
-                    status: currentBuild.currentResult,
-                    description: "Build finished with status ${currentBuild.currentResult}"
-                )
-            }
-        }
-    }
+    // post {
+    //     always {
+    //         script {
+    //             def commitSha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+    //
+    //             githubNotify(
+    //                 context: 'CI Pipeline',
+    //                 account: 'splitnines',
+    //                 repo: 'netdevops',
+    //                 sha: commitSha,
+    //                 credentialsId: 'NetDevOps',
+    //                 status: currentBuild.currentResult,
+    //                 description: "Build finished with status ${currentBuild.currentResult}"
+    //             )
+    //         }
+    //     }
+    // }
     // post {
     //     always {
     //         script {
