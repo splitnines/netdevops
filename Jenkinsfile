@@ -39,16 +39,6 @@ pipeline {
                 CISCO_PASS = '$CISCO_CREDS_PSW'
             }
             steps {
-                // withCredentials([usernamePassword(
-                //     credentialsId: 'cisco_creds',
-                //     usernameVariable: 'CISCO_USER',
-                //     passwordVariable: 'CISCO_PASS'
-                // )]) {
-                //     sh '''
-                //         . $VENV/bin/activate
-                //         ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
-                //     '''
-                // }
                 sh '''
                     . $VENV/bin/activate
                     ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
@@ -57,32 +47,29 @@ pipeline {
         }
 
         stage('Backup') {
+            environment {
+                CISCO_CREDS = credentials('cisco_creds')
+                CISCO_USER = '$CISCO_CREDS_USR'
+                CISCO_PASS = '$CISCO_CREDS_PSW'
+            }
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'cisco_creds',
-                    usernameVariable: 'CISCO_USER',
-                    passwordVariable: 'CISCO_PASS'
-                )]) {
-                    sh '''
-                        . $VENV/bin/activate
-                        ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
-                    '''
-                }
+                sh '''
+                    . $VENV/bin/activate
+                    ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
+                '''
             }
         }
 
         stage('Deploy') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'cisco_creds',
-                    usernameVariable: 'CISCO_USER',
-                    passwordVariable: 'CISCO_PASS'
-                )]) {
-                    sh '''
-                        . $VENV/bin/activate
-                        ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
-                    '''
-                }
+            environment {
+                CISCO_CREDS = credentials('cisco_creds')
+                CISCO_USER = '$CISCO_CREDS_USR'
+                CISCO_PASS = '$CISCO_CREDS_PSW'
+            }
+                sh '''
+                    . $VENV/bin/activate
+                    ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
+                '''
             }
         }
 
