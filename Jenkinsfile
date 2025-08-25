@@ -6,7 +6,7 @@ pipeline {
     }
 
     stages {
-        enviroment {
+        environment {
             CISCO_CREDS = credentials('cisco_creds')
             CISCO_USER = CISCO_CREDS_USR
             CISCO_PASS = CISCO_CREDS_PSW
