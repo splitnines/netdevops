@@ -109,7 +109,7 @@ pipeline {
                     . $VENV/bin/activate
                     for file in $(find playbooks/ -type f -name "*.yml"); do
                       echo "Deploying playbook $file"
-                      ansible-playbook -i inventory/lab.yml $file | exit 1
+                      ansible-playbook -i inventory/lab.yml $file || exit 1
                     done
                 '''
             }
