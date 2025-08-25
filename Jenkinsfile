@@ -86,7 +86,7 @@ pipeline {
 
     post {
         always {
-            gihubNotify(
+            githubNotify(
                 context: 'text',
                 credentialsId: 'NetDevOps',
                 status: 'SUCCESS'
