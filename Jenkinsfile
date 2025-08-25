@@ -125,23 +125,14 @@ pipeline {
                     pyats run job tests/job.py --no-mail --no-archive
                 '''
             }
+            post {
+                success {
+                  githubNotify context: 'Validate', status: 'SUCCESS', description: 'Validation passed'
+                }
+                failure {
+                  githubNotify context: 'Validate', status: 'FAILURE', description: 'Validation failed'
+                }
+            }
         }
-    }
-    post {
-      always {
-        script {
-          def sha = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-    
-          githubNotify(
-            context: "CI Pipeline",
-            account: "splitnines",
-            repo: "netdevops",
-            sha: sha,
-            credentialsId: "NetDevOps",
-            status: currentBuild.currentResult,
-            description: "Pipeline ${currentBuild.currentResult} at stage: ${currentBuild.currentStage}"
-          )
-        }
-      }
     }
 }
