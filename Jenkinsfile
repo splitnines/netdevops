@@ -37,7 +37,7 @@ pipeline {
             steps {
                 sh '''
                     . $VENV/bin/activate
-                    for file in $(find playbook/ -type f -name "*.yml"); do
+                    for file in $(find playbooks/ -type f -name "*.yml"); do
                       echo ">>> Check $file"
                       ansible-playbook --syntax-check "$file" -i inventory/lab.yml || exit 1
                     done
