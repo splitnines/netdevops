@@ -1,3 +1,5 @@
+// Returns a bool based on any changes to the repo in
+// predefined directories
 def runStage() {
     def changedFiles = sh(
         script: "git diff --name-only HEAD~1 HEAD",
@@ -22,20 +24,7 @@ pipeline {
 
     stages {
         stage('Setup Python') {
-            when {
-                expression {
-                    def changedFiles = sh(
-                        script: "git diff --name-only HEAD~1 HEAD",
-                        returnStdout: true
-                    ).trim().split("\n")
-
-                    return changedFiles.any {
-                        it.startsWith("playbooks/") ||
-                        it.startsWith("configs/") ||
-                        it.startsWith("test/")
-                    }
-                }
-            }
+            when { expression { runStage() } }
             steps {
                 dir("${WORKSPACE}") {
                     sh '''
@@ -51,20 +40,7 @@ pipeline {
         }
 
         stage('Prepare Logs') {
-            when {
-                expression {
-                    def changedFiles = sh(
-                        script: "git diff --name-only HEAD~1 HEAD",
-                        returnStdout: true
-                    ).trim().split("\n")
-
-                    return changedFiles.any {
-                        it.startsWith("playbooks/") ||
-                        it.startsWith("configs/") ||
-                        it.startsWith("test/")
-                    }
-                }
-            }
+            when { expression { runStage() } }
             steps {
                 dir("${WORKSPACE}") {
                     sh '''
@@ -76,20 +52,7 @@ pipeline {
         }
 
         stage('Validate') {
-            when {
-                expression {
-                    def changedFiles = sh(
-                        script: "git diff --name-only HEAD~1 HEAD",
-                        returnStdout: true
-                    ).trim().split("\n")
-
-                    return changedFiles.any {
-                        it.startsWith("playbooks/") ||
-                        it.startsWith("configs/") ||
-                        it.startsWith("test/")
-                    }
-                }
-            }
+            when { expression { runStage() } }
             steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
@@ -106,20 +69,7 @@ pipeline {
         }
 
         stage('Backup') {
-            when {
-                expression {
-                    def changedFiles = sh(
-                        script: "git diff --name-only HEAD~1 HEAD",
-                        returnStdout: true
-                    ).trim().split("\n")
-
-                    return changedFiles.any {
-                        it.startsWith("playbooks/") ||
-                        it.startsWith("configs/") ||
-                        it.startsWith("test/")
-                    }
-                }
-            }
+            when { expression { runStage() } }
             steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
@@ -131,29 +81,14 @@ pipeline {
         }
 
         stage('Archive Backups') {
-            when {
-                expression { runStage() }
-            }
+            when { expression { runStage() } }
             steps {
                 archiveArtifacts artifacts: 'backups/*.log', fingerprint: true
             }
         }
 
         stage('Deploy') {
-            when {
-                expression {
-                    def changedFiles = sh(
-                        script: "git diff --name-only HEAD~1 HEAD",
-                        returnStdout: true
-                    ).trim().split("\n")
-
-                    return changedFiles.any {
-                        it.startsWith("playbooks/") ||
-                        it.startsWith("configs/") ||
-                        it.startsWith("test/")
-                    }
-                }
-            }
+            when { expression { runStage() } }
             steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
@@ -165,6 +100,7 @@ pipeline {
         }
 
         stage('Tests') {
+            when { expression { runStage() } }
             steps {
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
