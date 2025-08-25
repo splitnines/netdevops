@@ -134,7 +134,7 @@ pipeline {
                             account: "splitnines",         // your GitHub org/user
                             repo: "netdevops",             // your repo name
                             sha: sha,                      // commit SHA
-                            credentialsId: "github_token", // Jenkins credential with PAT or GitHub App token
+                            credentialsId: "NetDevOps", // Jenkins credential with PAT or GitHub App token
                             status: currentBuild.currentResult,
                             description: "Pipeline finished with ${currentBuild.currentResult}"
                         )
