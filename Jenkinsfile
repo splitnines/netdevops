@@ -68,6 +68,16 @@ pipeline {
             }
         }
 
+        stage('Clean Backup Directory') {
+            when { expression { runStage() } }
+            steps {
+                sh '''
+                  rm -rf backups
+                  mkdir -p backups
+                '''
+            }
+        }
+
         stage('Backup') {
             when { expression { runStage() } }
             steps {
@@ -75,7 +85,10 @@ pipeline {
                     export CISCO_USER=$CISCO_CREDS_USR
                     export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
-                    ansible-playbook -i inventory/lab.yml playbooks/01_config_backup.yml
+                    for file in $(find playbooks/infra/ -type f -name "*.yml"); do
+                      echo ">>> Running infra playbook $file"
+                      ansible-playbook -i inventory/lab.yml "$file" || exit 1
+                    done
                 '''
             }
         }
@@ -94,7 +107,10 @@ pipeline {
                     export CISCO_USER=$CISCO_CREDS_USR
                     export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
-                    ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
+                    for file in $(find playbooks/ -type f -name "*.yml"); do
+                      echo "Deploying playbook $file"
+                      ansible-playbook -i inventory/lab.yml $file | exit 1
+                    done
                 '''
             }
         }

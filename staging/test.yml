@@ -1,0 +1,16 @@
+---
+- hosts: iosxe 
+  gather_facts: no
+
+  tasks:
+    - name: Run multiple show commands
+      cisco.ios.ios_command:
+        commands:
+          - show clock
+          - show version | include uptime
+          - show ip interface brief
+      register: out
+
+    - name:  Results
+      ansible.builtin.debug:
+        var: out.stdout_lines
