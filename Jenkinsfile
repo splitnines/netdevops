@@ -6,11 +6,6 @@ pipeline {
     }
 
     stages {
-        environment {
-            CISCO_CREDS = credentials('cisco_creds')
-            CISCO_USER = CISCO_CREDS_USR
-            CISCO_PASS = CISCO_CREDS_PSW
-        }
         stage('Setup Python') {
             steps {
                 withCredentials([usernamePassword(
@@ -44,6 +39,11 @@ pipeline {
         }
 
         stage('Validate') {
+            environment {
+                CISCO_CREDS = credentials('cisco_creds')
+                CISCO_USER = CISCO_CREDS_USR
+                CISCO_PASS = CISCO_CREDS_PSW
+            }
             steps {
                 // withCredentials([usernamePassword(
                 //     credentialsId: 'cisco_creds',
