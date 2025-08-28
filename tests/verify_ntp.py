@@ -1,10 +1,4 @@
-# import logging
 from pyats import aetest
-# from pyats.log.utils import banner
-
-
-# log = logging.getLogger(__name__)
-# log.info(banner("pyATS TDD Automated Network Testing"))
 
 
 class CommonSetup(aetest.CommonSetup):
@@ -23,7 +17,7 @@ class TestNtpAssociationsReach(aetest.Testcase):
         self.device = testbed.devices[device_name]
 
     @aetest.test
-    def show_ntp_associations(self):
+    def test_ntp_associations_peer(self):
         self.ntp_associations = self.device.parse("show ntp associations")
         if "peer" not in self.ntp_associations:
             self.failed(f"show_ntp_associations for {self.device.name} FAILED")

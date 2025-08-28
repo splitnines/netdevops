@@ -1,21 +1,13 @@
 # Testing
 ---
 - name: Push config to Cisco IOS-XE devices
-  hosts: iosxe
+  hosts: r1
   gather_facts: no
 
   tasks:
-    - name: Set project root
-      set_fact:
-        root: "/home/rickey/Scripts/myAnsible/"
-
-    - name: Check for configuration changes
-      stat:
-        path: "{{ root }}/configs/{{ inventory_hostname }}_ntp.cfg"
-      register: config_changes
-
-    - name: Push NTP Configuration
+    - name: NTP Config for r1
       cisco.ios.ios_config:
-        src: "{{ root }}/configs/{{ inventory_hostname }}_ntp.cfg"
-        save_when: changed
-      when: config_changes.stat.exists
+        lines:
+          - ntp source GigabitEthernet1
+          - ntp server 3
+          - ntp server 132.163.96.1 prefer source GigabitEthernet1

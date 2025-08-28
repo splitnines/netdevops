@@ -15,12 +15,12 @@ devices:
         ip: 10.0.0.248
         port: 22
 
-  sw2-1:
+  r2:
     os: iosxe
     type: switch
     connections:
       cli:
         protocol: ssh
-        ip: 10.2.1.1
+        ip: 10.2.0.1
         port: 22
 
