@@ -1,6 +1,6 @@
 ---
 - name: Backup Cisco IOS-XE configurations
-  hosts: iosxe
+  hosts: r1
   gather_facts: no
   tasks:
 
