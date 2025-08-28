@@ -9,5 +9,5 @@
       cisco.ios.ios_config:
         lines:
           - ntp source GigabitEthernet1
-          - ntp server 3
+          - ntp master 3
           - ntp server 132.163.96.1 prefer source GigabitEthernet1
