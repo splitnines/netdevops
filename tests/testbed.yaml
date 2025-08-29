@@ -6,21 +6,21 @@ testbed:
       password: "%ENV{CISCO_PASS}"
 
 devices:
-  r1:
-    os: iosxe
-    type: router
-    connections:
-      cli:
-        protocol: ssh
-        ip: 10.0.0.248
-        port: 22
-
-  # r2:
+  # r1:
   #   os: iosxe
-  #   type: switch
+  #   type: router
   #   connections:
   #     cli:
   #       protocol: ssh
-  #       ip: 10.2.0.1
+  #       ip: 10.0.0.248
   #       port: 22
+
+  r4:
+    os: iosxe
+    type: switch
+    connections:
+      cli:
+        protocol: ssh
+        ip: 10.4.0.1
+        port: 22
 

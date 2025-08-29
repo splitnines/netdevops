@@ -1,13 +1,19 @@
 # Testing
 ---
 - name: Push config to Cisco IOS-XE devices
-  hosts: r1
+  hosts: r4
   gather_facts: no
 
   tasks:
-    - name: NTP Config for r1
+
+    # - name: NTP Config for r1
+    #   cisco.ios.ios_config:
+    #     lines:
+    #       - ntp source GigabitEthernet1
+    #       - ntp master 3
+    #       - ntp server 132.163.96.1 prefer source GigabitEthernet1
+
+    - name: NTP Config for r4
       cisco.ios.ios_config:
         lines:
-          - ntp source GigabitEthernet1
-          - ntp master 3
-          - ntp server 132.163.96.1 prefer source GigabitEthernet1
+          - ntp server 10.1.0.1 prefer source Loopback0
