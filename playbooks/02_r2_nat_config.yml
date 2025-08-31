@@ -13,5 +13,5 @@
           - interface g1
           - ip nat outside
           - interface g2
-          - ip nat outside
+          - ip nat inside
           - ip nat inside source static 192.168.1.10 172.16.1.1
