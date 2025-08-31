@@ -116,7 +116,7 @@ pipeline {
                     export CISCO_USER=$CISCO_CREDS_USR
                     export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
-                    ansible-playbook -i inventory/lab.yml playbook/*.yml 
+                    ansible-playbook -i inventory/lab.yml playbooks/*.yml 
                 '''
             }
         }
