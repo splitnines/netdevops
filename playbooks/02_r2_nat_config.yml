@@ -12,6 +12,14 @@
         lines:
           - interface g1
           - ip nat outside
+          - exit
           - interface g2
           - ip nat inside
-          - ip nat inside source static 192.168.1.10 172.16.1.1
+          - exit
+          - no ip nat inside source static 192.168.1.10 172.16.1.1
+          - ip access-list standard NAT
+          - 10 permit 192.168.1.0 0.0.0.255
+          - ip nat pool NAT_POOL 172.16.1.1 172.16.1.10 netmask 255.255.255.0
+          - ip nat inside source list NAT pool NAT_POOL
+          - end
+
