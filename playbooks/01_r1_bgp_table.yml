@@ -5,6 +5,8 @@
 
   tasks:
 
+    - import_tasks: infra/01_backup_tasks.yml
+
     - name: Show BGP Table for r1
       cisco.ios.ios_command:
         commands:

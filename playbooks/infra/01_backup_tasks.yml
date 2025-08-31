@@ -1,0 +1,21 @@
+---
+- name: Timestamp
+  set_fact:
+    timestamp: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
+
+- name: Run "show running-config"
+  cisco.ios.ios_command:
+    commands:
+      - show running-config
+  register: config_output
+
+- name: Ensure backup directory exists
+  file:
+    path: backups
+    state: directory
+    mode: '0755'
+
+- name: Save output to file
+  copy:
+    content: "{{ config_output.stdout[0] }}"
+    dest: "backups/{{ inventory_hostname }}-running-config-{{ timestamp }}.log"

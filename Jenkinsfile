@@ -78,20 +78,20 @@ pipeline {
             }
         }
 
-        stage('Backup') {
-            when { expression { runStage() } }
-            steps {
-                sh '''
-                    export CISCO_USER=$CISCO_CREDS_USR
-                    export CISCO_PASS=$CISCO_CREDS_PSW 
-                    . $VENV/bin/activate
-                    for file in $(find playbooks/infra/ -type f -name "*.yml"); do
-                      echo ">>> Running infra playbook $file"
-                      ansible-playbook -i inventory/lab.yml "$file" || exit 1
-                    done
-                '''
-            }
-        }
+        // stage('Backup') {
+        //     when { expression { runStage() } }
+        //     steps {
+        //         sh '''
+        //             export CISCO_USER=$CISCO_CREDS_USR
+        //             export CISCO_PASS=$CISCO_CREDS_PSW 
+        //             . $VENV/bin/activate
+        //             for file in $(find playbooks/infra/ -type f -name "*.yml"); do
+        //               echo ">>> Running infra playbook $file"
+        //               ansible-playbook -i inventory/lab.yml "$file" || exit 1
+        //             done
+        //         '''
+        //     }
+        // }
 
         stage('Archive Backups') {
             when { expression { runStage() } }
