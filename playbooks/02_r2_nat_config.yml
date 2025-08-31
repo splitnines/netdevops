@@ -7,11 +7,11 @@
     
     - import_tasks: infra/01_backup_tasks.yml
 
-    - name: Show BGP Table for r2
+    - name: Static NAT Configuration
       cisco.ios.ios_config:
         lines:
           - interface g1
-          - nat outside
+          - ip nat outside
           - interface g2
-          - nat outside
+          - ip nat outside
           - ip nat inside source static 192.168.1.10 172.16.1.1
