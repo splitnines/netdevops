@@ -100,13 +100,6 @@ pipeline {
         //     }
         // }
 
-        stage('Archive Backups') {
-            when { expression { runStage() } }
-            steps {
-                archiveArtifacts artifacts: 'backups/*.log', fingerprint: true
-            }
-        }
-
         stage('Deploy') {
             when { expression { runStage() } }
             steps {
@@ -125,6 +118,13 @@ pipeline {
                     . $VENV/bin/activate
                     ansible-playbook -i inventory/lab.yml playbook/*.yml 
                 '''
+            }
+        }
+
+        stage('Archive Backups') {
+            when { expression { runStage() } }
+            steps {
+                archiveArtifacts artifacts: 'backups/*.log', fingerprint: true
             }
         }
 
