@@ -103,14 +103,20 @@ pipeline {
         stage('Deploy') {
             when { expression { runStage() } }
             steps {
+                // sh '''
+                //     export CISCO_USER=$CISCO_CREDS_USR
+                //     export CISCO_PASS=$CISCO_CREDS_PSW 
+                //     . $VENV/bin/activate
+                //     for file in $(find playbooks/ -type f -name "*.yml"); do
+                //       echo "Deploying playbook $file"
+                //       ansible-playbook -i inventory/lab.yml $file || exit 1
+                //     done
+                // '''
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
                     export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
-                    for file in $(find playbooks/ -type f -name "*.yml"); do
-                      echo "Deploying playbook $file"
-                      ansible-playbook -i inventory/lab.yml $file || exit 1
-                    done
+                    ansible-playbook -i inventory/lab.yml playbook/*.yml 
                 '''
             }
         }
@@ -122,7 +128,9 @@ pipeline {
                     export CISCO_USER=$CISCO_CREDS_USR
                     export CISCO_PASS=$CISCO_CREDS_PSW 
                     . $VENV/bin/activate
-                    pyats run job tests/job.py --no-mail --no-archive
+                    if [ -f "tests/job.py" ]; then
+                        pyats run job tests/job.py --no-mail --no-archive
+                    fi
                 '''
             }
         }

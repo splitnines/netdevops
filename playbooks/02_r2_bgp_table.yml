@@ -1,0 +1,11 @@
+---
+- name: Commands for r2
+  hosts: r2
+  gather_facts: no
+
+  tasks:
+
+    - name: Show BGP Table for r2
+      cisco.ios.ios_command:
+        commands:
+          - show bgp ipv4 unicast
