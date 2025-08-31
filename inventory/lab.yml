@@ -5,6 +5,6 @@ all:
         r1:
           ansible_host: 10.1.0.1
         r2:
-          ansible_host: 10.2.0.1
+          ansible_host: 10.1.1.2
         r3:
           ansible_host: 10.3.0.1

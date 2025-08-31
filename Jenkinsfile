@@ -54,17 +54,6 @@ pipeline {
         stage('Validate') {
             when { expression { runStage() } }
             steps {
-                // sh '''
-                //     export CISCO_USER=$CISCO_CREDS_USR
-                //     export CISCO_PASS=$CISCO_CREDS_PSW 
-                //     . $VENV/bin/activate
-                //     for file in $(find playbooks/ -type f -name "*.yml"); do
-                //       echo ">>> Syntax Check $file"
-                //       ansible-playbook --syntax-check "$file" -i inventory/lab.yml || exit 1
-                //       echo ">>> Check $file"
-                //       ansible-playbook --check "$file" -i inventory/lab.yml || exit 1
-                //     done
-                // '''
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
                     export CISCO_PASS=$CISCO_CREDS_PSW 
@@ -85,33 +74,9 @@ pipeline {
             }
         }
 
-        // stage('Backup') {
-        //     when { expression { runStage() } }
-        //     steps {
-        //         sh '''
-        //             export CISCO_USER=$CISCO_CREDS_USR
-        //             export CISCO_PASS=$CISCO_CREDS_PSW 
-        //             . $VENV/bin/activate
-        //             for file in $(find playbooks/infra/ -type f -name "*.yml"); do
-        //               echo ">>> Running infra playbook $file"
-        //               ansible-playbook -i inventory/lab.yml "$file" || exit 1
-        //             done
-        //         '''
-        //     }
-        // }
-
         stage('Deploy') {
             when { expression { runStage() } }
             steps {
-                // sh '''
-                //     export CISCO_USER=$CISCO_CREDS_USR
-                //     export CISCO_PASS=$CISCO_CREDS_PSW 
-                //     . $VENV/bin/activate
-                //     for file in $(find playbooks/ -type f -name "*.yml"); do
-                //       echo "Deploying playbook $file"
-                //       ansible-playbook -i inventory/lab.yml $file || exit 1
-                //     done
-                // '''
                 sh '''
                     export CISCO_USER=$CISCO_CREDS_USR
                     export CISCO_PASS=$CISCO_CREDS_PSW 
