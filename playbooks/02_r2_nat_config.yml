@@ -16,7 +16,7 @@
           - interface g2
           - ip nat inside
           - exit
-          - no ip nat inside source static 192.168.1.10 172.16.1.1
+          # - no ip nat inside source static 192.168.1.10 172.16.1.1
           - ip access-list standard NAT
           - 10 permit 192.168.1.0 0.0.0.255
           - exit
