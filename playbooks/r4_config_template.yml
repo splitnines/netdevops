@@ -1,16 +1,17 @@
 ---
 - name: Configuration Template
-  hosts: r5
+  hosts: r4
   gather_facts: no
 
   tasks:
     
     - import_tasks: infra/01_backup_tasks.yml
 
-    - name: NTP Configuration for the BGP Lab
+    - name: Add Interface Config for Apline Client
       cisco.ios.ios_config:
         lines:
-          - ntp peer 10.2.0.1 source g2 version 4
-          # - ntp server 10.1.0.1 prefer source lo0
+          - interface g3
+          - ip address 10.4.3.1 255.255.255.0
+          - no shut
           - end
 
