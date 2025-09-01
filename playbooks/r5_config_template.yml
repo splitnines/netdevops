@@ -10,6 +10,7 @@
     - name: NTP Configuration for the BGP Lab
       cisco.ios.ios_config:
         lines:
-          - ntp server 10.1.0.1 prefer source lo0
+          - ntp peer 10.2.0.1 source g2 version 4
+          # - ntp server 10.1.0.1 prefer source lo0
           - end
 
