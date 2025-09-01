@@ -8,3 +8,7 @@ all:
           ansible_host: 10.1.1.2
         r3:
           ansible_host: 10.3.0.1
+        r4:
+          ansible_host: 10.4.0.1
+        r5:
+          ansible_host: 10.4.0.1
