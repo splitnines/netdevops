@@ -21,8 +21,9 @@
           - ip access-list standard NAT
           - 10 permit 192.168.1.0 0.0.0.255
           - exit
-          - no ip nat inside source list NAT pool NAT_POOL
-          - no ip nat pool NAT_POOL 172.16.1.1 172.16.1.10 netmask 255.255.255.0
+          # - no ip nat inside source list NAT pool NAT_POOL
+          # - no ip nat pool NAT_POOL 172.16.1.1 172.16.1.10 netmask 255.255.255.0
+          - no ip nat inside source list 10 interface g1 overload
           - ip nat inside source list NAT interface g1 overload
           - end
 
