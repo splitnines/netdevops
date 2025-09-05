@@ -10,7 +10,5 @@
     - name: Configuration for IPsec GRE Tunnel v1
       cisco.ios.ios_config:
         lines:
-          - interface Gigabitethernet9
+          - interface Gigabitethernet8
           - description This is a test.
-          - no shutdown
-

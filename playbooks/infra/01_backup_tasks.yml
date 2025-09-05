@@ -17,4 +17,4 @@
 - name: Save output to file
   copy:
     content: "{{ config_output.stdout[0] }}"
-    dest: "backups/{{ inventory_hostname }}-running-config-{{ timestamp }}.log"
+    dest: "backups/{{ inventory_hostname }}-running-config-{{ timestamp }}.cfg"

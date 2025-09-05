@@ -17,7 +17,7 @@ devices:
 
   r4:
     os: iosxe
-    type: switch
+    type: router
     connections:
       cli:
         protocol: ssh
