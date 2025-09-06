@@ -14,6 +14,7 @@ wheels/
 # -------------------------
 # Ignore transient backups of running configs
 backups/*.log
+backups/*.cfg
 
 # Docker compose
 docker-compose.yml

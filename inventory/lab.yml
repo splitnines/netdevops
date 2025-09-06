@@ -12,3 +12,17 @@ all:
           ansible_host: 10.4.0.1
         r5:
           ansible_host: 10.4.0.1
+    lisp_lab:
+      hosts:
+        fusion-1:
+          ansible_host: 10.254.0.1
+        BxC-1:
+          ansible_host: 10.254.0.2
+        underlay-1:
+          ansible_host: 10.254.0.3
+        underlay-2:
+          ansible_host: 10.254.0.4
+        edge-1:
+          ansible_host: 10.254.0.5
+        edge-2:
+          ansible_host: 10.254.0.6

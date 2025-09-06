@@ -1,7 +1,7 @@
 # Testing
 ---
 - name: Configuration Template
-  hosts: r4
+  hosts: lisp_lab
   gather_facts: no
 
   tasks:
