@@ -24,7 +24,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.14'
 
       - name: Sync dependencies with uv
         run: |
@@ -54,7 +54,7 @@ jobs:
 
       - name: Copy Backups
         run: |
-          cp -v backups/* ~/Scripts/myAnsible/backups/
+          cp -v backups/* ~/projects/netdevops/backups/
 
   Deploy:
     runs-on: self-hosted
