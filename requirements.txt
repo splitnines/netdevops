@@ -18,6 +18,8 @@ arrow==1.3.0
     # via cookiecutter
 async-lru==2.0.5
     # via pyats-log
+asyncssh==2.23.1
+    # via genie-libs-filetransferutils
 attrs==25.3.0
     # via aiohttp
 backports-ssl==0.0.9
@@ -48,15 +50,13 @@ click==8.2.1
     # via cookiecutter
 cookiecutter==2.6.0
     # via pyats
-coverage==7.10.4
-    # via pytest-cov
 cryptography==45.0.6
     # via
     #   ansible-core
+    #   asyncssh
     #   paramiko
     #   pyats-utils
     #   pyopenssl
-    #   pysnmpcrypto
     #   unicon-plugins
 dict2xml==1.7.7
     # via rest-connector
@@ -79,32 +79,32 @@ frozenlist==1.7.0
     #   aiosignal
 future==0.18.3
     # via ciscoisesdk
-genie==25.7
+genie==26.6
     # via
     #   genie-libs-clean
     #   genie-libs-health
     #   genie-telemetry
     #   genie-trafficgen
     #   pyats
-genie-libs-clean==25.7
+genie-libs-clean==26.6
     # via genie
-genie-libs-conf==25.7
+genie-libs-conf==26.6
     # via genie
-genie-libs-filetransferutils==25.7
+genie-libs-filetransferutils==26.6
     # via genie
-genie-libs-health==25.7
+genie-libs-health==26.6
     # via genie
-genie-libs-ops==25.7
+genie-libs-ops==26.6
     # via genie
-genie-libs-parser==25.7
+genie-libs-parser==26.6
     # via genie
-genie-libs-robot==25.7
+genie-libs-robot==26.6
     # via pyats
-genie-libs-sdk==25.7
+genie-libs-sdk==26.6
     # via genie
-genie-telemetry==25.7
+genie-telemetry==26.6
     # via pyats
-genie-trafficgen==25.7
+genie-trafficgen==26.6
     # via pyats
 gitdb==4.0.12
     # via gitpython
@@ -118,8 +118,6 @@ idna==3.10
     # via
     #   requests
     #   yarl
-iniconfig==2.1.0
-    # via pytest
 invoke==2.2.0
     # via paramiko
 ixnetwork==9.30.2212.8
@@ -134,12 +132,11 @@ jinja2==3.1.6
     #   pyats-aetest
     #   pyats-easypy
     #   pyats-log
-    #   pysmi
 jsonpickle==4.1.1
     # via genie
 junit-xml==1.9
     # via pyats-aereport
-lxml==6.0.0
+lxml==6.1.1
     # via
     #   ncclient
     #   yang-connector
@@ -162,7 +159,6 @@ packaging==25.0
     #   ansible-core
     #   ixnetwork-restpy
     #   pyats
-    #   pytest
 paramiko==4.0.0
     # via
     #   myansible (pyproject.toml)
@@ -170,10 +166,6 @@ paramiko==4.0.0
     #   yang-connector
 pathspec==0.12.1
     # via yamllint
-pluggy==1.6.0
-    # via pytest
-ply==3.11
-    # via pysmi
 prettytable==3.16.0
     # via
     #   genie
@@ -200,32 +192,32 @@ pyasyncore==1.0.4
     # via
     #   pyasynchat
     #   pyftpdlib
-pyats==25.7
+pyats==26.6
     # via myansible (pyproject.toml)
-pyats-aereport==25.7
+pyats-aereport==26.6
     # via
     #   pyats
     #   pyats-aetest
     #   pyats-easypy
     #   pyats-reporter
-pyats-aetest==25.7
+pyats-aetest==26.6
     # via
     #   pyats
     #   pyats-kleenex
     #   pyats-robot
-pyats-async==25.7
+pyats-async==26.6
     # via
     #   pyats
     #   pyats-connections
     #   pyats-kleenex
-pyats-connections==25.7
+pyats-connections==26.6
     # via
     #   pyats
     #   pyats-robot
     #   pyats-topology
-pyats-contrib==25.7
+pyats-contrib==26.6
     # via pyats
-pyats-datastructures==25.7
+pyats-datastructures==26.6
     # via
     #   pyats
     #   pyats-aetest
@@ -236,13 +228,13 @@ pyats-datastructures==25.7
     #   pyats-tcl
     #   pyats-topology
     #   pyats-utils
-pyats-easypy==25.7
+pyats-easypy==26.6
     # via pyats
-pyats-kleenex==25.7
+pyats-kleenex==26.6
     # via
     #   pyats
     #   pyats-easypy
-pyats-log==25.7
+pyats-log==26.6
     # via
     #   pyats
     #   pyats-aereport
@@ -252,26 +244,26 @@ pyats-log==25.7
     #   pyats-kleenex
     #   pyats-reporter
     #   pyats-tcl
-pyats-reporter==25.7
+pyats-reporter==26.6
     # via pyats
-pyats-results==25.7
+pyats-results==26.6
     # via
     #   pyats
     #   pyats-aereport
     #   pyats-aetest
     #   pyats-easypy
     #   pyats-reporter
-pyats-robot==25.7
+pyats-robot==26.6
     # via pyats
-pyats-tcl==25.7
+pyats-tcl==26.6
     # via pyats
-pyats-topology==25.7
+pyats-topology==26.6
     # via
     #   pyats
     #   pyats-easypy
     #   pyats-kleenex
     #   pyats-utils
-pyats-utils==25.7
+pyats-utils==26.6
     # via
     #   pyats
     #   pyats-aetest
@@ -284,23 +276,13 @@ pycparser==2.22
 pyftpdlib==2.0.1
     # via genie-libs-filetransferutils
 pygments==2.19.2
-    # via
-    #   pytest
-    #   rich
+    # via rich
 pynacl==1.5.0
     # via paramiko
 pyopenssl==25.1.0
     # via ixnetwork
-pysmi==1.6.2
-    # via pysnmp
-pysnmp==6.1.4
+pysnmp==7.1.22
     # via genie-libs-sdk
-pysnmpcrypto==0.0.4
-    # via pysnmp
-pytest==8.4.1
-    # via pytest-cov
-pytest-cov==4.1.0
-    # via pysnmp
 python-dateutil==2.9.0.post0
     # via arrow
 python-dotenv==1.1.1
@@ -313,6 +295,8 @@ python-slugify==8.0.4
     # via cookiecutter
 python-socketio==5.11.2
     # via pyats-log
+pyvmomi==9.1.0.0
+    # via genie-libs-sdk
 pyyaml==6.0.2
     # via
     #   ansible-core
@@ -333,16 +317,16 @@ requests==2.32.5
     #   ixnetwork-restpy
     #   pyats-contrib
     #   pyats-kleenex
-    #   pysmi
     #   requests-toolbelt
     #   rest-connector
+    #   stcrestclient
 requests-toolbelt==0.9.1
     # via
     #   ciscoisesdk
     #   pyats-contrib
 resolvelib==1.0.1
     # via ansible-core
-rest-connector==25.7
+rest-connector==26.6
     # via genie-libs-sdk
 rich==14.1.0
     # via cookiecutter
@@ -353,8 +337,8 @@ robotframework==7.3.2
 ruamel-yaml==0.18.15
     # via genie-libs-sdk
 ruamel-yaml-clib==0.2.12
-    # via ruamel-yaml
-setuptools==80.9.0
+    # via genie-libs-sdk
+setuptools==79.0.1
     # via
     #   genie-libs-clean
     #   genie-libs-health
@@ -369,6 +353,8 @@ six==1.17.0
     #   python-dateutil
 smmap==5.0.2
     # via gitdb
+stcrestclient==1.9.6
+    # via genie-trafficgen
 text-unidecode==1.3
     # via python-slugify
 tftpy==0.8.0
@@ -377,13 +363,15 @@ tqdm==4.67.1
     # via genie
 types-python-dateutil==2.9.0.20250809
     # via arrow
-unicon==25.7
+typing-extensions==4.16.0
+    # via asyncssh
+unicon==26.6
     # via
     #   genie-libs-filetransferutils
     #   genie-trafficgen
     #   pyats-connections
     #   unicon-plugins
-unicon-plugins==25.7
+unicon-plugins==26.6
     # via unicon
 urllib3==2.5.0
     # via requests
@@ -410,7 +398,7 @@ xmltodict==0.14.2
     # via genie-libs-parser
 yamllint==1.37.1
     # via pyats-topology
-yang-connector==25.7
+yang-connector==26.6
     # via genie-libs-sdk
 yarl==1.20.1
     # via aiohttp
