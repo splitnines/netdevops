@@ -1,6 +1,6 @@
 # Testing
 ---
-- hosts: lisp_lab 
+- hosts: default 
   gather_facts: no
 
   tasks:
