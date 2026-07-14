@@ -19,6 +19,9 @@ backups/*.cfg
 # Docker compose
 docker-compose.yml
 
+# Jenkins files
+jenkins/
+
 # Ansible facts cache
 .cache/
 
