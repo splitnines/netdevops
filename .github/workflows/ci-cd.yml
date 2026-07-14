@@ -21,14 +21,15 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
+      # - name: Setup Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.13'
 
       - name: Sync dependencies with uv
         run: |
-          uv sync
+          uv python install 3.14
+          uv sync --python 3.14
 
       - name: Ansible Syntax Check
         run: |
