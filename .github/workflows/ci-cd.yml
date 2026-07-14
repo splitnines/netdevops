@@ -19,12 +19,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
-
-      # - name: Setup Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.13'
+        uses: actions/checkout@v6
 
       - name: Sync dependencies with uv
         run: |
@@ -43,7 +38,7 @@ jobs:
     needs: Validate
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Sync Dependencies With uv
         run: |
@@ -65,7 +60,7 @@ jobs:
     needs: Backup
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Sync Dependencies With uv
         run: |
@@ -83,7 +78,7 @@ jobs:
     needs: Deploy
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Sync Dependencies With uv
         run: |

@@ -1,4 +1,3 @@
-# test
 ---
 - hosts: default 
   gather_facts: no
