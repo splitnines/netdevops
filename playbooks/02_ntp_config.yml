@@ -1,3 +1,4 @@
+# Testing
 ---
 - name: Push config to Cisco IOS-XE devices
   hosts: default
@@ -5,7 +6,7 @@
 
   tasks:
 
-    - name: NTP Config for r1
+    - name: NTP Config for sp1
       cisco.ios.ios_config:
         lines:
           - ntp source GigabitEthernet3

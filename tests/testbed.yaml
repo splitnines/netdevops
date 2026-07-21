@@ -6,7 +6,7 @@ testbed:
       password: "%ENV{CISCO_PASS}"
 
 devices:
-  r1:
+  sp1:
     os: iosxe
     type: router
     connections:
