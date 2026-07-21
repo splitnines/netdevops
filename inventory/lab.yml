@@ -28,5 +28,5 @@ all:
           ansible_host: 10.254.0.6
     default:
       hosts:
-        r1:
+        sp1:
           ansible_host: 10.0.0.248
