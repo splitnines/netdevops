@@ -30,3 +30,22 @@ all:
       hosts:
         sp1:
           ansible_host: 10.0.0.248
+    consoles:
+      vars:
+        ansible_connection: local
+        ansible_host: localhost
+        telnet_user: "{{ lookup('env', 'CISCO_USER') }}"
+        telnet_password: "{{ lookup('env', 'CISCO_PASS') }}"
+      hosts:
+        r1:
+          telnet_port: 9001
+        r2:
+          telnet_port: 9002
+        r3:
+          telnet_port: 9003
+        r4:
+          telnet_port: 9004
+        r5:
+          telnet_port: 9005
+        r6:
+          telnet_port: 9006

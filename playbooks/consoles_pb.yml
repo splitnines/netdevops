@@ -1,0 +1,39 @@
+- name: CML console playbook
+  hosts: consoles
+  gather_facts: false
+
+  tasks:
+    - name: Run commands through an existing or new console session
+      ansible.builtin.expect:
+        command: "telnet {{ ansible_host }} {{ telnet_port }}"
+        timeout: 10
+        echo: false
+        responses:
+          "(?i)Escape character is \\'\\^\\]\\'\\.\\s*$": "\r"
+
+          '(?i)Username:\s*$': "{{ telnet_user }}"
+          '(?i)Password:\s*$': "{{ telnet_password }}"
+
+          # Exit the local Telnet client cleanly.
+          '(?i)telnet>\s*$': "quit"
+
+          "(?i)Press RETURN to get started\\.": "\u001d"
+
+          # Each successive IOS prompt sends the next response.
+          '(?m)^(?!telnet>)[^\r\n]*[>#]\s*$':
+            - "terminal length 0"
+            - "show clock"
+            - "show version | include uptime"
+            - "show ip interface brief"
+            # - "exit\r\n\u001dquit\r"
+            - "exit"
+            - "\u001d"
+      register: out
+      changed_when: false
+      delegate_to: localhost
+      vars:
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+    - name: Results
+      ansible.builtin.debug:
+        msg: "{{ out.stdout | replace('\\'', '') }}"
