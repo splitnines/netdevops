@@ -2,17 +2,12 @@ name: NetDevOps CI/CD
 
 on:
   push:
-    paths:
-      - 'playbooks/**'
-      - 'configs/**'
-      - 'inventory/**'
-      - 'ansible.cfg'
-      - 'requirements.yml'
-      - 'test/**'
-    branches:
+    branches-ignore:
       - main
+    paths:
+      - "playbooks/**"
+      - "test/**"
   workflow_dispatch:
-
 
 jobs:
   Validate:
@@ -28,7 +23,8 @@ jobs:
 
       - name: Ansible Syntax Check
         run: |
-          uv run ansible-playbook --syntax-check playbooks/*.yml -i inventory/lab.yml
+          find playbooks -type f \( -name '*.yml' -o -name '*.yaml' \) \
+            -exec uv run ansible-playbook --syntax-check -i inventory/inventory.yml {} \;
 
   Backup:
     runs-on: self-hosted
@@ -36,19 +32,34 @@ jobs:
       CISCO_USER: ${{ secrets.CISCO_USER }}
       CISCO_PASS: ${{ secrets.CISCO_PASS }}
     needs: Validate
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
 
-      - name: Sync Dependencies With uv
+      - name: Check for backup playbook
+        id: backup-check
+        shell: bash
         run: |
-          uv sync
+          if [[ -f playbooks/config_backup.yml ]]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync Dependencies With uv
+        if: steps.backup-check.outputs.exists == 'true'
+        run: uv sync
 
       - name: Backup Configs
+        if: steps.backup-check.outputs.exists == 'true'
         run: |
-          uv run ansible-playbook -i inventory/lab.yml playbooks/infra/01_config_backup.yml
+          uv run ansible-playbook \
+            -i inventory/lab.yml \
+            playbooks/config_backup.yml
 
       - name: Copy Backups
+        if: steps.backup-check.outputs.exists == 'true'
         run: |
           cp -v backups/* ~/projects/netdevops/backups/
 
@@ -68,7 +79,17 @@ jobs:
 
       - name: Deploy Changes
         run: |
-          uv run ansible-playbook -i inventory/lab.yml playbooks/02_ntp_config.yml
+          set -euo pipefail
+
+          while IFS= read -r -d '' playbook; do
+            echo "Running: $playbook"
+            uv run ansible-playbook -i inventory/inventory.yml "$playbook"
+          done < <(
+            find playbooks -maxdepth 1 -type f \
+              \( -name '*.yml' -o -name '*.yaml' \) \
+              ! -name '*config_backup.yml' \
+              -print0 | sort -z
+          )
 
   Tests:
     runs-on: self-hosted
@@ -76,19 +97,33 @@ jobs:
       CISCO_USER: ${{ secrets.CISCO_USER }}
       CISCO_PASS: ${{ secrets.CISCO_PASS }}
     needs: Deploy
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6
 
-      - name: Sync Dependencies With uv
+      - name: Check for Python tests
+        id: python-tests
+        shell: bash
         run: |
-          uv sync
+          if [[ -d tests ]] &&
+             [[ -n "$(find tests -type f -name '*.py' -print -quit)" ]]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync Dependencies With uv
+        if: steps.python-tests.outputs.exists == 'true'
+        run: uv sync
 
       - name: Export env vars for pyATS
+        if: steps.python-tests.outputs.exists == 'true'
         run: |
-          echo "CISCO_USER=${CISCO_USER}" >> $GITHUB_ENV
-          echo "CISCO_PASS=${CISCO_PASS}" >> $GITHUB_ENV
+          echo "CISCO_USER=${CISCO_USER}" >> "$GITHUB_ENV"
+          echo "CISCO_PASS=${CISCO_PASS}" >> "$GITHUB_ENV"
 
       - name: Run pyATS Tests
+        if: steps.python-tests.outputs.exists == 'true'
         run: |
           uv run pyats run job tests/job.py --no-mail --no-archive
