@@ -107,7 +107,7 @@ jobs:
         shell: bash
         run: |
           if [[ -d tests ]] &&
-             [[ -n "$(find tests -type f -name '*.py' -print -quit)" ]]; then
+             [[ -n "$(find tests -maxdepth -type f -name '*.py' -print -quit)" ]]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
