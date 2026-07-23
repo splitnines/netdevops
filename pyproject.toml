@@ -11,4 +11,10 @@ dependencies = [
     "pexpect>=4.9.0",
     "pyats[full]>=25.7",
     "python-dotenv>=1.1.1",
+    "ty>=0.0.63",
+]
+[tool.ty.analysis]
+allowed-unresolved-imports = [
+    "genie.testbed",
+    "genie.metaparser.util.exceptions",
 ]
