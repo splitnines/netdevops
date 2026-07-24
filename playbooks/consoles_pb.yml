@@ -1,4 +1,3 @@
-# test
 - name: CML console playbook
   hosts: consoles
   gather_facts: false
