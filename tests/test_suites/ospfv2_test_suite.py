@@ -1,6 +1,6 @@
 from pyats import aetest
 
-from test_scripts.ospfv2.ip_protocols import (
+from test_suites.test_scripts.ospfv2.ip_protocols import (
     TestIpv4ProtocolsOspf,
     TestDuplicateOspfRids,
 )

@@ -13,8 +13,10 @@ def main(runtime):
     if runtime.testbed:
         testbed = runtime.testbed
     else:
-        testbedfile = os.path.join(BASE_DIR, "config", "testbeds", TESTBED)
+        testbedfile = os.path.join(
+            BASE_DIR, "tests", "config", "testbeds", TESTBED
+        )
         testbed = load(testbedfile)
 
-    testscript = os.path.join(BASE_DIR, "test_suites", TESTSUITE)
+    testscript = os.path.join(BASE_DIR, "tests", "test_suites", TESTSUITE)
     runtime.tasks.run(testscript=testscript, testbed=testbed)
