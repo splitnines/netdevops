@@ -69,3 +69,6 @@ Thumbs.db
 # Github runner root
 # -------------------------
 actions-runner/
+
+# unit test data
+tests/unit_tests/data

@@ -1,31 +1,25 @@
 from pyats import aetest
-
-
-class CommonSetup(aetest.CommonSetup):
-    @aetest.subsection
-    def connect_to_devices(self, testbed):
-        testbed.connect(log_stdout=False)
-
-    @aetest.subsection
-    def loop_mark(self, testbed):
-        aetest.loop.mark(TestNtpAssociationsReach, device_name=testbed.devices)
+from genie.metaparser.util.exceptions import (
+    SchemaMissingKeyError,
+    SchemaEmptyParserError,
+)
 
 
 class TestNtpAssociationsReach(aetest.Testcase):
-    @aetest.test
+    @aetest.setup
     def setup(self, testbed, device_name):
         self.device = testbed.devices[device_name]
 
-    @aetest.test
-    def test_ntp_associations_peer(self):
-        self.ntp_associations = self.device.parse("show ntp associations")
-        if "peer" not in self.ntp_associations:
-            self.failed(f"show_ntp_associations for {self.device.name} FAILED")
+        try:
+            self.ntp_associations = self.device.parse("show ntp associations")
+        except SchemaEmptyParserError, SchemaMissingKeyError:
+            self.failed(f"{self.device.name} no NTP associations.")
 
     @aetest.test
     def test_ntp_association_reach(self):
         self.ntp_reach_failed = False
         self.peer_ip_failed_list = []
+
         for peer_ip, peer_data in self.ntp_associations.get(
             "peer", {}
         ).items():
@@ -53,13 +47,3 @@ class TestNtpAssociationsReach(aetest.Testcase):
                 "test_ntp_association_clock_state for "
                 f"{self.device.name} FAILED"
             )
-
-
-class CommonCleanup(aetest.CommonCleanup):
-    @aetest.subsection
-    def disconnect_from_devices(self, testbed):
-        testbed.disconnect()
-
-
-if __name__ == "__main__":
-    aetest.main

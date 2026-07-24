@@ -1,0 +1,40 @@
+testbed:
+  name: cml-consoles
+  credentials:
+    default:
+      username: "%ENV{CISCO_USER}"
+      password: "%ENV{CISCO_PASS}"
+
+devices:
+  r1:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: telnet
+        ip: localhost
+        port: 9001
+  r2:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: telnet
+        ip: localhost
+        port: 9002
+  r3:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: telnet
+        ip: localhost
+        port: 9003
+  r4:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: telnet
+        ip: localhost
+        port: 9004
