@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
+.uv/
 
 # Virtual environments
 .venv
@@ -15,9 +16,6 @@ wheels/
 # Ignore transient backups of running configs
 backups/*.log
 backups/*.cfg
-
-# Docker compose
-docker-compose.yml
 
 # Jenkins files
 jenkins/
@@ -47,23 +45,10 @@ logs/
 .github_pat_token
 .python-version
 
-# Python build system
-# -------------------------
-__pycache__/
-*.pyc
-.venv/
-.uv/
-
 # -------------------------
 # Lock files
 # -------------------------
 #uv.lock
-
-# -------------------------
-# OS / Editor junk
-# -------------------------
-.DS_Store
-Thumbs.db
 
 # -------------------------
 # Github runner root
