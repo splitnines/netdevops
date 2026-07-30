@@ -55,7 +55,7 @@ jobs:
         if: steps.backup-check.outputs.exists == 'true'
         run: |
           uv run ansible-playbook \
-            -i inventory/lab.yml \
+            -i inventory/inventory.yml \
             playbooks/config_backup.yml
 
       - name: Copy Backups
