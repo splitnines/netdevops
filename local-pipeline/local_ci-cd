@@ -34,7 +34,8 @@ if [ "$playbooks" = true ]; then
         -exec uv run ansible-playbook \
         --syntax-check \
         -i inventory/inventory.yml {} +; then
-        printf "Ansible syntax check failed\n"
+        echo "Ansible syntax check failed."
+        echo "========================================"
         exit 1
     fi
 fi
