@@ -16,6 +16,7 @@ playbook_dir="$repo_root/playbooks"
 
 log_dir="$repo_root/logs"
 mkdir -p "$log_dir"
+
 ts=$(date '+%Y%m%d-%H%M%S')
 ansible_log_file="$log_dir/ansible-pre-cicd-$ts-$$.log"
 

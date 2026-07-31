@@ -15,8 +15,8 @@ commit=${3:?Missing commit SHA}
 playbook_dir="$repo_root/playbooks"
 tests_dir="$repo_root/tests"
 
-log_dir="$repo_root/logs"
-mkdir -p "$log_dir"
+log_dir="$repo_root/logs" && mkdir -p "$log_dir"
+
 ts=$(date '+%Y%m%d-%H%M%S')
 ansible_log_file="$log_dir/ansible-post-cicd-$ts-$$.log"
 pyats_log_file="$log_dir/pyats-post-cicd-$ts-$$.log"
