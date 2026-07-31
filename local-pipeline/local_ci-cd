@@ -67,7 +67,27 @@ if [ "$backup" = true ]; then
     echo "========================================"
 fi
 
-echo "[2/4] Running tests..."
+if [ "$playbooks" = true ]; then
+    echo "Running Ansible playbooks..."
+    for playbook in playbooks/*.yml playbooks/*.yaml; do
+        [ -f "$playbook" ] || continue
+
+        case ${playbook##*/} in
+        *config_backup.yml | *config_backup.yaml)
+            continue
+            ;;
+        esac
+
+        echo "Running: $playbook"
+
+        if ! uv run ansible-playbook \
+            -i inventory/inventory.yml \
+            "$playbook"; then
+            echo "Playbook failed: $playbook"
+            exit 1
+        fi
+    done
+fi
 
 # Replace this with your project's test command.
 # Examples:
