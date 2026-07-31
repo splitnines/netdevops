@@ -6,6 +6,9 @@ repo_root=${1:?Missing repository root}
 branch=${2:?Missing branch name}
 commit=${3:?Missing commit SHA}
 
+playbook_dir="$repo_root/playbooks"
+tests_dir="$repo_root/tests"
+
 cd "$repo_root"
 
 echo "========================================"
@@ -15,13 +18,20 @@ echo "Branch:     $branch"
 echo "Commit:     $commit"
 echo "========================================"
 
-echo "[1/4] Running formatting or lint checks..."
+playbooks=false
+for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
+    if [ -f "$file" ]; then
+        playbooks=true
+        break
+    fi
+done
 
-# Replace this with your project's lint command.
-# Examples:
-# npm run lint
-# python -m ruff check .
-# make lint
+if [ "$playbooks" = true ]; then
+    echo "Running Ansible Syntax Check..."
+
+    find playbooks -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) \
+        -exec uv run ansible-playbook --syntax-check -i inventory/inventory.yml {} \;
+fi
 
 echo "[2/4] Running tests..."
 
