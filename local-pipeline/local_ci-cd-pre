@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+set -eu
+
+repo_root=${1:?Missing repository root}
+branch=${2:?Missing branch name}
+commit=${3:?Missing commit SHA}
+
+playbook_dir="$repo_root/playbooks"
+tests_dir="$repo_root/tests"
+
+log_dir="$repo_root/logs"
+ts=$(date '+%Y%m%d-%H%M%S')
+ansible_log_file="$log_dir/ansible-cicd-$ts-$$.log"
+pyats_log_file="$log_dir/pyats-cicd-$ts-$$.log"
+
+cd "$repo_root"
+
+echo ""
+echo "========================================"
+echo "Local CI/CD started"
+echo "Repository: $repo_root"
+echo "Branch:     $branch"
+echo "Commit:     $commit"
+echo "========================================"
+
+# sync python environment
+echo ""
+echo "Sync'ing python environment..."
+echo ""
+uv python install 3.14
+uv sync --python 3.14
+echo ""
+echo "Python environment sync complete."
+echo "========================================"
+echo ""
+
+playbooks=false
+for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
+    if [[ -f "$file" ]]; then
+        playbooks=true
+        break
+    fi
+done
+
+# Ansible syntax check
+if [[ "$playbooks" = true ]]; then
+    echo "Running Ansible Syntax Check..."
+    echo ""
+
+    if ! find playbooks -maxdepth 1 -type f \
+        \( -name '*.yml' -o -name '*.yaml' \) \
+        -exec uv run ansible-playbook \
+        --syntax-check \
+        -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
+        echo "Ansible syntax check failed, exiting pipeline"
+        echo "========================================"
+        echo ""
+        exit 1
+    fi
+    echo ""
+    echo "Ansible syntax check successful"
+    echo "========================================"
+    echo ""
+fi
+
+# Ansible backups
+backup=false
+backup_file=""
+for file in "$playbook_dir/"config_backup*.yml "$playbook_dir/"config_backup*.yaml; do
+    if [[ -f "$file" ]]; then
+        backup=true
+        backup_file=${file##*/}
+        break
+    fi
+done
+
+if [[ "$backup" = true ]]; then
+    echo "Runnning Ansible Backups..."
+    echo ""
+    if ! uv run ansible-playbook \
+        -i inventory/inventory.yml \
+        "$playbook_dir"/"$backup_file" >>"$ansible_log_file" 2>&1; then
+        echo "Ansible backup failed, exiting pipeline"
+        echo "========================================"
+        echo ""
+        exit 1
+    fi
+    echo "Ansible backups completed successfully."
+    echo "Backups saved to $repo_root/backups"
+    echo "========================================"
+    echo ""
+fi
+
+# Ansible playbooks
+if [[ "$playbooks" = true ]]; then
+    echo "Running Ansible playbooks..."
+    echo ""
+    for playbook in playbooks/*.yml playbooks/*.yaml; do
+        [[ -f "$playbook" ]] || continue
+
+        case ${playbook##*/} in
+        *config_backup*.yml | *config_backup*.yaml)
+            continue
+            ;;
+        esac
+
+        echo "Running: $playbook"
+
+        if ! uv run ansible-playbook \
+            -i inventory/inventory.yml \
+            "$playbook" >>"$ansible_log_file" 2>&1; then
+            echo "Playbook failed: $playbook"
+            echo "========================================"
+            echo ""
+            exit 1
+        fi
+    done
+    echo ""
+    echo "Ansible playbooks completed successfully."
+    echo "========================================"
+    echo ""
+fi
+
+# pyATS tests
+pyats_status=0
+if [[ -f "$tests_dir"/job.py ]]; then
+    echo "Running pyATS tests..."
+    echo ""
+
+    if uv run pyats run job tests/job.py --no-mail --no-archive >>"$pyats_log_file" 2>&1; then
+        echo "pyATS tests completeed successfully."
+        echo "========================================"
+        echo ""
+    else
+        pyats_status=$?
+        echo "pyATS tests failed with status $pyats_status"
+        echo "========================================"
+        echo ""
+    fi
+fi
+
+echo "Local CI/CD completed successfully for $branch at $commit."
+echo "========================================"
+echo ""

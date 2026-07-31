@@ -115,6 +115,7 @@ if [[ "$playbooks" = true ]]; then
             exit 1
         fi
     done
+    echo ""
     echo "Ansible playbooks completed successfully."
     echo "========================================"
     echo ""
