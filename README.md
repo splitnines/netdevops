@@ -23,21 +23,20 @@ The jobs run serially. A failed job prevents dependent jobs from running.
 ├── ansible.cfg                    # Ansible defaults and connection settings
 ├── backups/                       # Configuration backups
 ├── inventory/
-│   ├── inventory.yml              # Canonical Ansible inventory
 │   ├── group_vars/                # Variables organized by inventory group
 │   └── library/                   # Alternate and reference inventories
 ├── playbooks/
 │   └── library/                   # Reusable playbook examples
 ├── tests/
 │   ├── config/testbeds/           # pyATS testbed definitions
-│   ├── jobs/                      # Example job files
+│   ├── library/                   # Example job files
 │   ├── test_suites/               # Suites and their test scripts
 │   └── unit_tests/                # Python unit tests
 ├── pyproject.toml                 # Python project and dependency definitions
 └── uv.lock                        # Locked Python dependency versions
 ```
 
-Files under `playbooks/library/` and `tests/jobs/` are examples. The pipeline executes playbooks placed directly under `playbooks/` and executes the job at `tests/job.py`.
+Files under `playbooks/library/` and `tests/libary/` are examples. The pipeline executes playbooks placed directly under `playbooks/` and executes the job at `tests/job.py`.
 
 ## Prerequisites
 
@@ -171,10 +170,10 @@ uv run ansible-playbook \
 
 ### 3. Configure pyATS (optional)
 
-The pyATS stage is enabled only when `tests/job.py` exists. Create that file or copy and modify an example from `tests/jobs/`:
+The pyATS stage is enabled only when `tests/job.py` exists. Create that file or copy and modify an example from `tests/library/`:
 
 ```bash
-cp tests/jobs/job.py tests/job.py
+cp tests/library/job.py tests/job.py
 ```
 
 Configure the job's testbed and suite paths for the target environment. Testbed files belong under `tests/config/testbeds/` and may reference `CISCO_USER` and `CISCO_PASS` from the environment.

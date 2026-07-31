@@ -1,0 +1,10 @@
+---
+- name: Show commands
+  hosts: default
+  gather_facts: false
+
+  tasks:
+    - name: Show commands
+      cisco.ios.ios_command:
+        commands:
+          - show bgp ipv4 unicast

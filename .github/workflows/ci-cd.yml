@@ -51,6 +51,14 @@ jobs:
         if: steps.backup-check.outputs.exists == 'true'
         run: uv sync
 
+      - name: Anisble Syntax Check
+        if: steps.backuo-check.outputs.exists == 'true'
+        run: |
+          uv run ansible-playbook \
+            --syntax-check \
+            -i inventory/inventory.yml \
+            playbooks/config_backups.yml
+
       - name: Backup Configs
         if: steps.backup-check.outputs.exists == 'true'
         run: |

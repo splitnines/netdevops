@@ -1,11 +1,8 @@
 ---
-- hosts: lisp_lab 
-  gather_facts: no
+- hosts: default
+  gather_facts: false
 
   tasks:
-
-    - import_tasks: infra/01_backup_tasks.yml
-
     - name: Run multiple show commands
       cisco.ios.ios_command:
         commands:
@@ -14,6 +11,6 @@
           - show ip interface brief
       register: out
 
-    - name:  Results
+    - name: Results
       ansible.builtin.debug:
         var: out.stdout_lines

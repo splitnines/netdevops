@@ -1,5 +1,5 @@
 ---
-- name: Backup Cisco IOS-XE configurations
+- name: Config backup
   hosts: default
   gather_facts: false
   tasks:
@@ -15,7 +15,7 @@
 
     - name: Ensure backup directory exists
       file:
-        path: backups
+        path: "backups"
         state: directory
         mode: "0755"
 

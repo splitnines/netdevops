@@ -38,3 +38,19 @@ devices:
         protocol: telnet
         ip: localhost
         port: 9004
+  r5:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: telnet
+        ip: localhost
+        port: 9005
+  r6:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: telnet
+        ip: localhost
+        port: 9006

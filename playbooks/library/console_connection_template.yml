@@ -7,7 +7,7 @@
       ansible.builtin.expect:
         command: "telnet {{ ansible_host }} {{ telnet_port }}"
         timeout: 10
-        echo: false
+        echo: true
         responses:
           "(?i)Escape character is \\'\\^\\]\\'\\.\\s*$": "\r"
 
@@ -17,15 +17,14 @@
           # Exit the local Telnet client cleanly.
           '(?i)telnet>\s*$': "quit"
 
-          "(?i)Press RETURN to get started\\.": "\u001d"
+          "(?i)Press RETURN to get started\\.": "\r"
 
           # Each successive IOS prompt sends the next response.
           '(?m)^(?!telnet>)[^\r\n]*[>#]\s*$':
             - "terminal length 0"
-            - "show clock"
-            - "show version | include uptime"
             - "show ip interface brief"
-            # - "exit\r\n\u001dquit\r"
+            - "show clock"
+            - "terminal length 24"
             - "exit"
             - "\u001d"
       register: out

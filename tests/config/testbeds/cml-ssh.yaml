@@ -1,0 +1,16 @@
+testbed:
+  name: cml-ssh
+  credentials:
+    default:
+      username: "%ENV{CISCO_USER}"
+      password: "%ENV{CISCO_PASS}"
+
+devices:
+  r1:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: ssh
+        ip: 10.0.0.248
+        port: 22
