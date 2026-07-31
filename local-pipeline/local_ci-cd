@@ -104,5 +104,6 @@ if [ -f "$tests_dir"/job.py ]; then
         echo "========================================"
     fi
 fi
+#testing
 
 echo "Local CI/CD completed successfully for $branch at $commit."
