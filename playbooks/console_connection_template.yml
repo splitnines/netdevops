@@ -36,5 +36,3 @@
     - name: Results
       ansible.builtin.debug:
         msg: "{{ out.stdout | replace('\\'', '') }}"
-
-    - name
