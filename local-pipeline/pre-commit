@@ -10,6 +10,7 @@ logger() {
 
 repo_root=$(git rev-parse --show-toplevel) || exit 1
 branch=$(git branch --show-current)
+playbook_dir="$repo_root/playbooks"
 
 if [[ -z "$branch" ]]; then
     echo "$(logger "pre") Detached HEAD; skipping CI/CD."
@@ -30,8 +31,18 @@ if [[ ! -x "$pipeline" ]]; then
     exit 1
 fi
 
-echo "$(logger "pre") Triggering CI/CD"
-echo "$(logger "pre") Branch: $branch"
-echo "$(logger "pre") Commit: $commit"
+playbooks=false
+for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
+    if [[ -f "$file" ]]; then
+        playbooks=true
+        break
+    fi
+done
 
-"$pipeline" "$repo_root" "$branch" "$commit"
+if [[ "$playbooks" = true ]]; then
+    echo "$(logger "pre") Triggering CI/CD"
+    echo "$(logger "pre") Branch: $branch"
+    echo "$(logger "pre") Commit: $commit"
+
+    "$pipeline" "$repo_root" "$branch" "$commit"
+fi
