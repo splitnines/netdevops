@@ -105,11 +105,4 @@ if [ -f "$tests_dir"/job.py ]; then
     echo "========================================"
 fi
 
-# Replace this with your project's build command.
-# Examples:
-# npm run build
-# cargo build --release
-# go build ./...
-# make build
-
 echo "Local CI/CD completed successfully for $branch at $commit."
