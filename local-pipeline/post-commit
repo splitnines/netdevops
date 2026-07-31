@@ -2,16 +2,22 @@
 
 set -u
 
+logger() {
+    local prefix=${1:-cicd}
+    ts=$(date '+%Y-%m-%d %H:%M:%S')
+    printf '%s [%s-commit]:' "$ts" "$prefix"
+}
+
 repo_root=$(git rev-parse --show-toplevel) || exit 1
 branch=$(git branch --show-current)
 
 if [[ -z "$branch" ]]; then
-    echo "[post-commit] Detached HEAD; skipping CI/CD."
+    echo "$(logger "post") Detached HEAD; skipping CI/CD."
     exit 0
 fi
 
 if [[ "$branch" = "main" ]]; then
-    echo "[post-commit] Commit is on main; skipping CI/CD."
+    echo "$(logger "post") Commit is on main; skipping CI/CD."
     exit 0
 fi
 
@@ -20,12 +26,12 @@ commit=$(git rev-parse HEAD)
 pipeline="$repo_root/local-pipeline/local_ci-cd-post"
 
 if [[ ! -x "$pipeline" ]]; then
-    echo "[post-commit] Pipeline is missing or not executable: $pipeline" >&2
+    echo "$(logger "post") Pipeline is missing or not executable: $pipeline" >&2
     exit 1
 fi
 
-echo "[post-commit] Triggering CI/CD"
-echo "[post-commit] Branch: $branch"
-echo "[post-commit] Commit: $commit"
+echo "$(logger "post") Triggering CI/CD"
+echo "$(logger "post") Branch: $branch"
+echo "$(logger "post") Commit: $commit"
 
 "$pipeline" "$repo_root" "$branch" "$commit"
