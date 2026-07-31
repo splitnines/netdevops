@@ -38,6 +38,7 @@ done
 
 if [ "$playbooks" = true ]; then
     echo "Running Ansible Syntax Check..."
+    echo "========================================"
 
     if ! find playbooks -maxdepth 1 -type f \
         \( -name '*.yml' -o -name '*.yaml' \) \
@@ -67,6 +68,7 @@ done
 
 if [ "$backup" = true ]; then
     echo "Runnning Ansible Backups..."
+    echo "========================================"
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
         "$playbook_dir"/"$backup_file"; then
@@ -83,6 +85,7 @@ fi
 
 if [ "$playbooks" = true ]; then
     echo "Running Ansible playbooks..."
+    echo "========================================"
     for playbook in playbooks/*.yml playbooks/*.yaml; do
         [ -f "$playbook" ] || continue
 
@@ -111,6 +114,7 @@ fi
 pyats_status=0
 if [ -f "$tests_dir"/job.py ]; then
     echo "Running pyATS tests..."
+    echo "========================================"
 
     if uv run pyats run job tests/job.py --no-mail --no-archive; then
         echo "pyATS tests complete."
@@ -126,4 +130,5 @@ fi
 #testing
 
 echo "Local CI/CD completed successfully for $branch at $commit."
+echo "========================================"
 echo ""
