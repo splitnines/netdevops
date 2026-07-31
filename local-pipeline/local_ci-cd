@@ -54,7 +54,7 @@ if [ "$backup" = true ]; then
     echo "Runnning Ansible Backups..."
     if ! uv run ansible-playbook \
         -i inventory/inventory \
-        playbooks/"$file"; then
+        "$repo_root"/"$file"; then
         echo "Ansible backup failed, exiting pipeline"
         echo "========================================"
         exit 1
