@@ -23,22 +23,11 @@ cd "$repo_root"
 
 echo ""
 echo "========================================"
-echo "[post-commit] Local CI/CD started"
-echo "[post-commit] Repository: $repo_root"
-echo "[post-commit] Branch:     $branch"
-echo "[post-commit] Commit:     $commit"
+echo "$(logger "post") Local CI/CD started"
+echo "$(logger "post") Repository: $repo_root"
+echo "$(logger "post") Branch:     $branch"
+echo "$(logger "post") Commit:     $commit"
 echo "========================================"
-
-# sync python environment
-# echo ""
-# echo "Sync'ing python environment..."
-# echo ""
-# uv python install 3.14
-# uv sync --python 3.14
-# echo ""
-# echo "Python environment sync complete."
-# echo "========================================"
-# echo ""
 
 playbooks=false
 for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
@@ -48,58 +37,9 @@ for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
     fi
 done
 
-# Ansible syntax check
-# if [[ "$playbooks" = true ]]; then
-#     echo "Running Ansible Syntax Check..."
-#     echo ""
-#
-#     if ! find playbooks -maxdepth 1 -type f \
-#         \( -name '*.yml' -o -name '*.yaml' \) \
-#         -exec uv run ansible-playbook \
-#         --syntax-check \
-#         -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
-#         echo "Ansible syntax check failed, exiting pipeline"
-#         echo "========================================"
-#         echo ""
-#         exit 1
-#     fi
-#     echo ""
-#     echo "Ansible syntax check successful"
-#     echo "========================================"
-#     echo ""
-# fi
-
-# Ansible backups
-# backup=false
-# backup_file=""
-# for file in "$playbook_dir/"config_backup*.yml "$playbook_dir/"config_backup*.yaml; do
-#     if [[ -f "$file" ]]; then
-#         backup=true
-#         backup_file=${file##*/}
-#         break
-#     fi
-# done
-#
-# if [[ "$backup" = true ]]; then
-#     echo "Runnning Ansible Backups..."
-#     echo ""
-#     if ! uv run ansible-playbook \
-#         -i inventory/inventory.yml \
-#         "$playbook_dir"/"$backup_file" >>"$ansible_log_file" 2>&1; then
-#         echo "Ansible backup failed, exiting pipeline"
-#         echo "========================================"
-#         echo ""
-#         exit 1
-#     fi
-#     echo "Ansible backups completed successfully."
-#     echo "Backups saved to $repo_root/backups"
-#     echo "========================================"
-#     echo ""
-# fi
-
 # Ansible playbooks
 if [[ "$playbooks" = true ]]; then
-    echo "[post-commit] Running Ansible playbooks..."
+    echo "$(logger "post") Running Ansible playbooks..."
     echo ""
     for playbook in playbooks/*.yml playbooks/*.yaml; do
         [[ -f "$playbook" ]] || continue
@@ -110,19 +50,19 @@ if [[ "$playbooks" = true ]]; then
             ;;
         esac
 
-        echo "[post-commit] Running: $playbook"
+        echo "$(logger "post") Running: $playbook"
 
         if ! uv run ansible-playbook \
             -i inventory/inventory.yml \
             "$playbook" >>"$ansible_log_file" 2>&1; then
-            echo "[post-commit] Playbook failed: $playbook"
+            echo "$(logger "post") Playbook failed: $playbook"
             echo "========================================"
             echo ""
             exit 1
         fi
     done
     echo ""
-    echo "[post-commit] Ansible playbooks completed successfully."
+    echo "$(logger "post") Ansible playbooks completed successfully."
     echo "========================================"
     echo ""
 fi
@@ -130,21 +70,21 @@ fi
 # pyATS tests
 pyats_status=0
 if [[ -f "$tests_dir"/job.py ]]; then
-    echo "[post-commit] Running pyATS tests..."
+    echo "$(logger "post") Running pyATS tests..."
     echo ""
 
     if uv run pyats run job tests/job.py --no-mail --no-archive >>"$pyats_log_file" 2>&1; then
-        echo "[post-commit] pyATS tests completeed successfully."
+        echo "$(logger "post") pyATS tests completeed successfully."
         echo "========================================"
         echo ""
     else
         pyats_status=$?
-        echo "[post-commit] pyATS tests failed with status $pyats_status"
+        echo "$(logger "post") pyATS tests failed with status $pyats_status"
         echo "========================================"
         echo ""
     fi
 fi
 
-echo "[post-commit] Local CI/CD completed successfully for $branch at $commit."
+echo "$(logger "post") Local CI/CD completed successfully for $branch at $commit."
 echo "========================================"
 echo ""

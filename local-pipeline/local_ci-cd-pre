@@ -97,54 +97,6 @@ if [[ "$backup" = true ]]; then
     echo ""
 fi
 
-# Ansible playbooks
-# if [[ "$playbooks" = true ]]; then
-#     echo "Running Ansible playbooks..."
-#     echo ""
-#     for playbook in playbooks/*.yml playbooks/*.yaml; do
-#         [[ -f "$playbook" ]] || continue
-#
-#         case ${playbook##*/} in
-#         *config_backup*.yml | *config_backup*.yaml)
-#             continue
-#             ;;
-#         esac
-#
-#         echo "Running: $playbook"
-#
-#         if ! uv run ansible-playbook \
-#             -i inventory/inventory.yml \
-#             "$playbook" >>"$ansible_log_file" 2>&1; then
-#             echo "Playbook failed: $playbook"
-#             echo "========================================"
-#             echo ""
-#             exit 1
-#         fi
-#     done
-#     echo ""
-#     echo "Ansible playbooks completed successfully."
-#     echo "========================================"
-#     echo ""
-# fi
-#
-# # pyATS tests
-# pyats_status=0
-# if [[ -f "$tests_dir"/job.py ]]; then
-#     echo "Running pyATS tests..."
-#     echo ""
-#
-#     if uv run pyats run job tests/job.py --no-mail --no-archive >>"$pyats_log_file" 2>&1; then
-#         echo "pyATS tests completeed successfully."
-#         echo "========================================"
-#         echo ""
-#     else
-#         pyats_status=$?
-#         echo "pyATS tests failed with status $pyats_status"
-#         echo "========================================"
-#         echo ""
-#     fi
-# fi
-
 echo "$(logger "pre") Local CI/CD completed successfully for $branch at $commit."
 echo "========================================"
 echo ""
