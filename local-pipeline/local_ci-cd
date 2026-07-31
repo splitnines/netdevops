@@ -87,6 +87,8 @@ if [ "$playbooks" = true ]; then
             exit 1
         fi
     done
+    echo "Ansible playbooks completed successfully."
+    echo "========================================"
 fi
 
 # Replace this with your project's test command.
