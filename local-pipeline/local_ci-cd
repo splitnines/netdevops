@@ -91,15 +91,12 @@ if [ "$playbooks" = true ]; then
     echo "========================================"
 fi
 
-# Replace this with your project's test command.
-# Examples:
-# npm test
-# python -m pytest
-# cargo test
-# go test ./...
-# make test
+if [ -f "$tests_dir"/job.py ]; then
+    echo "Running pyATS tests..."
 
-echo "[3/4] Building project..."
+    echo "pyATS tests complete"
+    echo "========================================"
+fi
 
 # Replace this with your project's build command.
 # Examples:
