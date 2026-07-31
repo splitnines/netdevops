@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -eu
 
 repo_root=${1:?Missing repository root}
