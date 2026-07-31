@@ -8,6 +8,11 @@ commit=${3:?Missing commit SHA}
 playbook_dir="$repo_root/playbooks"
 tests_dir="$repo_root/tests"
 
+log_dir="$repo_root/logs"
+ts=$(date '+%Y%m%d-%H%M%S')
+ansible_log_file="$log_dir/ansible-cicd-$ts-$$.log"
+pyats_log_file="$log_dir/pyats-cicd-$ts-$$.log"
+
 cd "$repo_root"
 
 echo ""
@@ -46,7 +51,7 @@ if [[ "$playbooks" = true ]]; then
         \( -name '*.yml' -o -name '*.yaml' \) \
         -exec uv run ansible-playbook \
         --syntax-check \
-        -i inventory/inventory.yml {} +; then
+        -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
         echo "Ansible syntax check failed, exiting pipeline"
         echo "========================================"
         echo ""
@@ -74,7 +79,7 @@ if [[ "$backup" = true ]]; then
     echo "========================================"
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
-        "$playbook_dir"/"$backup_file"; then
+        "$playbook_dir"/"$backup_file" >>"$ansible_log_file" 2>&1; then
         echo "Ansible backup failed, exiting pipeline"
         echo "========================================"
         echo ""
@@ -104,7 +109,7 @@ if [[ "$playbooks" = true ]]; then
 
         if ! uv run ansible-playbook \
             -i inventory/inventory.yml \
-            "$playbook"; then
+            "$playbook" >>"$ansible_log_file" 2>&1; then
             echo "Playbook failed: $playbook"
             echo "========================================"
             echo ""
@@ -122,7 +127,7 @@ if [[ -f "$tests_dir"/job.py ]]; then
     echo "Running pyATS tests..."
     echo "========================================"
 
-    if uv run pyats run job tests/job.py --no-mail --no-archive; then
+    if uv run pyats run job tests/job.py --no-mail --no-archive >>"$pyats_log_file" 2>&1; then
         echo "pyATS tests completeed successfully."
         echo "========================================"
         echo ""
