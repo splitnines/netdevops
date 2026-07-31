@@ -123,7 +123,7 @@ if [ -f "$tests_dir"/job.py ]; then
     echo "========================================"
 
     if uv run pyats run job tests/job.py --no-mail --no-archive; then
-        echo "pyATS tests complete."
+        echo "pyATS tests completeed successfully."
         echo "========================================"
         echo ""
     else
