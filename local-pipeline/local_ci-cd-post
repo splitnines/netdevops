@@ -89,6 +89,8 @@ if [[ -f "$tests_dir"/job.py ]]; then
     fi
 fi
 
-echo "$(logger "post") Local CI/CD completed successfully for $branch at $commit."
-echo "========================================"
-echo ""
+if [[ "$playbooks" = true || -f "$tests_dir"/job.py ]]; then
+    echo "$(logger "post") Local CI/CD completed successfully for $branch at $commit."
+    echo "========================================"
+    echo ""
+fi

@@ -99,6 +99,8 @@ if [[ "$backup" = true ]]; then
     echo ""
 fi
 
-echo "$(logger "pre") Local CI/CD completed successfully for $branch at $commit."
-echo "========================================"
-echo ""
+if [[ "$playbooks" = true || "$backup" = true ]]; then
+    echo "$(logger "pre") Local CI/CD completed successfully for $branch at $commit."
+    echo "========================================"
+    echo ""
+fi
