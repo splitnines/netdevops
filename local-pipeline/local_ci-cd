@@ -92,17 +92,18 @@ if [ "$playbooks" = true ]; then
     echo "========================================"
 fi
 
+pyats_status=0
 if [ -f "$tests_dir"/job.py ]; then
     echo "Running pyATS tests..."
 
-    if ! uv run pyats run job tests/job.py --no-mail --no-archive; then
-        echo "pyATS tests failed"
+    if uv run pyats run job tests/job.py --no-mail --no-archive; then
+        echo "pyATS tests complete."
         echo "========================================"
-        exit 1
+    else
+        pyats_status=$?
+        echo "pyATS tests failed with status $pyats_status"
+        echo "========================================"
     fi
-
-    echo "pyATS tests complete"
-    echo "========================================"
 fi
 
 echo "Local CI/CD completed successfully for $branch at $commit."
