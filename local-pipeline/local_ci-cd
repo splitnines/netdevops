@@ -17,6 +17,13 @@ echo "Branch:     $branch"
 echo "Commit:     $commit"
 echo "========================================"
 
+echo ""
+echo "Sync'ing python environment..."
+uv python install 3.14
+uv sync --python 3.14
+echo "Python environment sync complete."
+echo "========================================"
+
 playbooks=false
 for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
     if [ -f "$file" ]; then
