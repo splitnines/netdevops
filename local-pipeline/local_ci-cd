@@ -38,6 +38,7 @@ if [ "$playbooks" = true ]; then
         echo "========================================"
         exit 1
     fi
+    echo ""
     echo "Ansible syntax check successful"
     echo "========================================"
 fi
