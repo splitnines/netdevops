@@ -90,17 +90,17 @@ fi
 if [ "$playbooks" = true ]; then
     echo "Running Ansible playbooks..."
     echo "========================================"
+    echo ""
     for playbook in playbooks/*.yml playbooks/*.yaml; do
         [ -f "$playbook" ] || continue
 
         case ${playbook##*/} in
-        *config_backup.yml | *config_backup.yaml)
+        *config_backup*.yml | *config_backup*.yaml)
             continue
             ;;
         esac
 
         echo "Running: $playbook"
-        echo "========================================"
 
         if ! uv run ansible-playbook \
             -i inventory/inventory.yml \
