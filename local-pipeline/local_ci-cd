@@ -61,7 +61,8 @@ if [ "$backup" = true ]; then
         echo "========================================"
         exit 1
     fi
-    echo "Ansible backup completed successfully."
+    echo "Ansible backups completed successfully."
+    echo "Backups saved to $repo_root/backups"
     echo "========================================"
 fi
 
