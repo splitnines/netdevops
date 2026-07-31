@@ -10,6 +10,7 @@ tests_dir="$repo_root/tests"
 
 cd "$repo_root"
 
+echo ""
 echo "========================================"
 echo "Local CI/CD started"
 echo "Repository: $repo_root"
@@ -19,10 +20,13 @@ echo "========================================"
 
 echo ""
 echo "Sync'ing python environment..."
+echo ""
 uv python install 3.14
 uv sync --python 3.14
+echo ""
 echo "Python environment sync complete."
 echo "========================================"
+echo""
 
 playbooks=false
 for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
@@ -42,11 +46,13 @@ if [ "$playbooks" = true ]; then
         -i inventory/inventory.yml {} +; then
         echo "Ansible syntax check failed, exiting pipeline"
         echo "========================================"
+        echo ""
         exit 1
     fi
     echo ""
     echo "Ansible syntax check successful"
     echo "========================================"
+    echo ""
 fi
 
 backup=false
@@ -66,11 +72,13 @@ if [ "$backup" = true ]; then
         "$playbook_dir"/"$backup_file"; then
         echo "Ansible backup failed, exiting pipeline"
         echo "========================================"
+        echo ""
         exit 1
     fi
     echo "Ansible backups completed successfully."
     echo "Backups saved to $repo_root/backups"
     echo "========================================"
+    echo ""
 fi
 
 if [ "$playbooks" = true ]; then
@@ -91,11 +99,13 @@ if [ "$playbooks" = true ]; then
             "$playbook"; then
             echo "Playbook failed: $playbook"
             echo "========================================"
+            echo ""
             exit 1
         fi
     done
     echo "Ansible playbooks completed successfully."
     echo "========================================"
+    echo ""
 fi
 
 pyats_status=0
@@ -105,12 +115,15 @@ if [ -f "$tests_dir"/job.py ]; then
     if uv run pyats run job tests/job.py --no-mail --no-archive; then
         echo "pyATS tests complete."
         echo "========================================"
+        echo ""
     else
         pyats_status=$?
         echo "pyATS tests failed with status $pyats_status"
         echo "========================================"
+        echo ""
     fi
 fi
 #testing
 
 echo "Local CI/CD completed successfully for $branch at $commit."
+echo ""
