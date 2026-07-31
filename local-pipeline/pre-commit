@@ -2,6 +2,7 @@
 
 set -u
 
+# test
 repo_root=$(git rev-parse --show-toplevel) || exit 1
 branch=$(git branch --show-current)
 
