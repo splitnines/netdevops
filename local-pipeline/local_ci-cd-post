@@ -23,14 +23,6 @@ pyats_log_file="$log_dir/pyats-post-cicd-$ts-$$.log"
 
 cd "$repo_root"
 
-echo ""
-echo "========================================"
-echo "$(logger "post") Local CI/CD started"
-echo "$(logger "post") Repository: $repo_root"
-echo "$(logger "post") Branch:     $branch"
-echo "$(logger "post") Commit:     $commit"
-echo "========================================"
-
 playbooks=false
 for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
     if [[ -f "$file" ]]; then
@@ -38,6 +30,16 @@ for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
         break
     fi
 done
+
+if [[ "$playbooks" = true ]]; then
+    echo ""
+    echo "========================================"
+    echo "$(logger "post") Local CI/CD started"
+    echo "$(logger "post") Repository: $repo_root"
+    echo "$(logger "post") Branch:     $branch"
+    echo "$(logger "post") Commit:     $commit"
+    echo "========================================"
+fi
 
 # Ansible playbooks
 if [[ "$playbooks" = true ]]; then
