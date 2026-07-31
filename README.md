@@ -277,3 +277,26 @@ The scripts also report progress and completion status in the terminal. Inspect 
 The current pre-commit implementation enters its general syntax-check stage only when at least one top-level `.yml` or `.yaml` playbook exists. Once that condition is met, the syntax-check command includes both `.yml` and `.yaml` files.
 
 The current post-commit implementation records a pyATS failure in its log and terminal output but does not return that failure as the final pipeline exit status. An Ansible deployment failure exits the post-commit pipeline with a nonzero status, but the existing commit remains in local history because post-commit hooks run after commit creation.
+
+### 9. Push the change branch
+
+After reviewing the commit and local pipeline results, confirm the current branch and working-tree status:
+
+```bash
+git branch --show-current
+git status
+```
+
+Push the change branch to `origin` and configure its upstream tracking branch:
+
+```bash
+git push --set-upstream origin change/<change-name>
+```
+
+Replace `change/<change-name>` with the actual local branch name. After the upstream is configured, subsequent commits can be pushed with:
+
+```bash
+git push
+```
+
+Pushing does not invoke the local `pre-commit` or `post-commit` hooks. Those hooks run only when a local commit is created.
