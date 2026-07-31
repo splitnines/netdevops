@@ -1,0 +1,45 @@
+#!/bin/sh
+
+set -eu
+
+repo_root=${1:?Missing repository root}
+branch=${2:?Missing branch name}
+commit=${3:?Missing commit SHA}
+
+cd "$repo_root"
+
+echo "========================================"
+echo "Local CI/CD started"
+echo "Repository: $repo_root"
+echo "Branch:     $branch"
+echo "Commit:     $commit"
+echo "========================================"
+
+echo "[1/4] Running formatting or lint checks..."
+
+# Replace this with your project's lint command.
+# Examples:
+# npm run lint
+# python -m ruff check .
+# make lint
+
+echo "[2/4] Running tests..."
+
+# Replace this with your project's test command.
+# Examples:
+# npm test
+# python -m pytest
+# cargo test
+# go test ./...
+# make test
+
+echo "[3/4] Building project..."
+
+# Replace this with your project's build command.
+# Examples:
+# npm run build
+# cargo build --release
+# go build ./...
+# make build
+
+echo "Local CI/CD completed successfully for $branch at $commit."

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -u
+
+repo_root=$(git rev-parse --show-toplevel) || exit 1
+branch=$(git branch --show-current)
+
+if [ -z "$branch" ]; then
+    echo "[post-commit] Detached HEAD; skipping CI/CD."
+    exit 0
+fi
+
+if [ "$branch" = "main" ]; then
+    echo "[post-commit] Commit is on main; skipping CI/CD."
+    exit 0
+fi
+
+commit=$(git rev-parse HEAD)
+
+pipeline="$repo_root/local-pipeline/local_ci-cd"
+
+if [ ! -x "$pipeline" ]; then
+    echo "[post-commit] Pipeline is missing or not executable: $pipeline" >&2
+    exit 1
+fi
+
+echo "[post-commit] Triggering CI/CD"
+echo "[post-commit] Branch: $branch"
+echo "[post-commit] Commit: $commit"
+
+"$pipeline" "$repo_root" "$branch" "$commit"
