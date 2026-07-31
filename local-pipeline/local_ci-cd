@@ -84,6 +84,7 @@ if [ "$playbooks" = true ]; then
             -i inventory/inventory.yml \
             "$playbook"; then
             echo "Playbook failed: $playbook"
+            echo "========================================"
             exit 1
         fi
     done
@@ -93,6 +94,12 @@ fi
 
 if [ -f "$tests_dir"/job.py ]; then
     echo "Running pyATS tests..."
+
+    if ! uv run pyats run job tests/job.py --no-mail --no-archive; then
+        echo "pyATS tests failed"
+        echo "========================================"
+        exit 1
+    fi
 
     echo "pyATS tests complete"
     echo "========================================"
