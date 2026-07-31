@@ -29,8 +29,14 @@ done
 if [ "$playbooks" = true ]; then
     echo "Running Ansible Syntax Check..."
 
-    find playbooks -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) \
-        -exec uv run ansible-playbook --syntax-check -i inventory/inventory.yml {} \;
+    if ! find playbooks -maxdepth 1 -type f \
+        \( -name '*.yml' -o -name '*.yaml' \) \
+        -exec uv run ansible-playbook \
+        --syntax-check \
+        -i inventory/inventory.yml {} +; then
+        echo "Ansible syntax check failed"
+        exit 1
+    fi
 fi
 
 echo "[2/4] Running tests..."
