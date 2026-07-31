@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -eu
 
+logger() {
+    local prefix=${1:-cicd}
+    ts=$(date '+%Y-%m-%d %H:%M:%S')
+    printf '%s [%s-commit]:' "$ts" "$prefix"
+}
+
 repo_root=${1:?Missing repository root}
 branch=${2:?Missing branch name}
 commit=${3:?Missing commit SHA}
@@ -17,20 +23,20 @@ cd "$repo_root"
 
 echo ""
 echo "========================================"
-echo "[pre-commit] Local CI/CD started"
-echo "[pre-commit] Repository: $repo_root"
-echo "[pre-commit] Branch:     $branch"
-echo "[pre-commit] Commit:     $commit"
+echo "$(logger "pre") Local CI/CD started"
+echo "$(logger "pre") Repository: $repo_root"
+echo "$(logger "pre") Branch:     $branch"
+echo "$(logger "pre") Commit:     $commit"
 echo "========================================"
 
 # sync python environment
 echo ""
-echo "[pre-commit] Sync'ing python environment..."
+echo "$(logger "pre") Sync'ing python environment..."
 echo ""
 uv python install 3.14
 uv sync --python 3.14
 echo ""
-echo "[pre-commit] Python environment sync complete."
+echo "$(logger "pre") Python environment sync complete."
 echo "========================================"
 echo ""
 
@@ -44,7 +50,7 @@ done
 
 # Ansible syntax check
 if [[ "$playbooks" = true ]]; then
-    echo "[pre-commit] Running Ansible Syntax Check..."
+    echo "$(logger "pre") Running Ansible Syntax Check..."
     echo ""
 
     if ! find playbooks -maxdepth 1 -type f \
@@ -52,13 +58,13 @@ if [[ "$playbooks" = true ]]; then
         -exec uv run ansible-playbook \
         --syntax-check \
         -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
-        echo "[pre-commit] Ansible syntax check failed, exiting pipeline"
+        echo "$(logger "pre") Ansible syntax check failed, exiting pipeline"
         echo "========================================"
         echo ""
         exit 1
     fi
     echo ""
-    echo "[pre-commit] Ansible syntax check successful"
+    echo "$(logger "pre") Ansible syntax check successful"
     echo "========================================"
     echo ""
 fi
@@ -75,18 +81,18 @@ for file in "$playbook_dir/"config_backup*.yml "$playbook_dir/"config_backup*.ya
 done
 
 if [[ "$backup" = true ]]; then
-    echo "[pre-commit] Runnning Ansible Backups..."
+    echo "$(logger "pre") Runnning Ansible Backups..."
     echo ""
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
         "$playbook_dir"/"$backup_file" >>"$ansible_log_file" 2>&1; then
-        echo "[pre-commit] Ansible backup failed, exiting pipeline"
+        echo "$(logger "pre") Ansible backup failed, exiting pipeline"
         echo "========================================"
         echo ""
         exit 1
     fi
-    echo "[pre-commit] Ansible backups completed successfully."
-    echo "[pre-commit] Backups saved to $repo_root/backups"
+    echo "$(logger "pre") Ansible backups completed successfully."
+    echo "$(logger "pre") Backups saved to $repo_root/backups"
     echo "========================================"
     echo ""
 fi
@@ -139,6 +145,6 @@ fi
 #     fi
 # fi
 
-echo "[pre-commit] Local CI/CD completed successfully for $branch at $commit."
+echo "$(logger "pre") Local CI/CD completed successfully for $branch at $commit."
 echo "========================================"
 echo ""

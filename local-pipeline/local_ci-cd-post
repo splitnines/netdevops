@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -eu
 
+logger() {
+    local prefix=${1:-cicd}
+    ts=$(date '+%Y-%m-%d %H:%M:%S')
+    printf '%s [%s-commit]:' "$ts" "$prefix"
+}
+
 repo_root=${1:?Missing repository root}
 branch=${2:?Missing branch name}
 commit=${3:?Missing commit SHA}
