@@ -14,40 +14,41 @@ commit=${3:?Missing commit SHA}
 
 playbook_dir="$repo_root/playbooks"
 
-log_dir="$repo_root/logs"
-mkdir -p "$log_dir"
+log_dir="$repo_root/logs" && mkdir -p "$log_dir"
 
 ts=$(date '+%Y%m%d-%H%M%S')
 ansible_log_file="$log_dir/ansible-pre-cicd-$ts-$$.log"
 
 cd "$repo_root"
 
-echo ""
-echo "========================================"
-echo "$(logger "pre") Local CI/CD started"
-echo "$(logger "pre") Repository: $repo_root"
-echo "$(logger "pre") Branch:     $branch"
-echo "$(logger "pre") Commit:     $commit"
-echo "========================================"
-
-# sync python environment
-echo ""
-echo "$(logger "pre") Sync'ing python environment..."
-echo ""
-uv python install 3.14
-uv sync --python 3.14
-echo ""
-echo "$(logger "pre") Python environment sync complete."
-echo "========================================"
-echo ""
-
 playbooks=false
-for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
+for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yaml; do
     if [[ -f "$file" ]]; then
         playbooks=true
         break
     fi
 done
+
+if [[ "$playbooks" = true ]]; then
+    echo ""
+    echo "========================================"
+    echo "$(logger "pre") Local CI/CD started"
+    echo "$(logger "pre") Repository: $repo_root"
+    echo "$(logger "pre") Branch:     $branch"
+    echo "$(logger "pre") Commit:     $commit"
+    echo "========================================"
+
+    # sync python environment
+    echo ""
+    echo "$(logger "pre") Sync'ing python environment..."
+    echo ""
+    uv python install 3.14
+    uv sync --python 3.14
+    echo ""
+    echo "$(logger "pre") Python environment sync complete."
+    echo "========================================"
+    echo ""
+fi
 
 # Ansible syntax check
 if [[ "$playbooks" = true ]]; then

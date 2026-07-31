@@ -2,48 +2,59 @@
 
 ## Overview
 
-This repository defines a Git-based workflow for applying and validating network changes on Cisco IOS XE devices. Ansible performs configuration backup and deployment, while pyATS performs post-deployment validation. GitHub Actions runs the workflow on a self-hosted runner that has access to the target network.
+This repository defines a local Git-driven workflow for applying and validating network changes on Cisco IOS XE devices. Ansible performs syntax validation, configuration backup, and deployment. pyATS performs optional post-deployment validation.
 
-The repository is modular. A change may provide an optional backup playbook, one or more deployment playbooks, optional pyATS tests, or any combination of these units. Inventory data, Ansible variables, pyATS testbeds, test suites, and individual test scripts are maintained as separate files so that they can be replaced or extended for a specific environment.
+The pipeline runs through Git `pre-commit` and `post-commit` hooks installed in each local clone. Commits on `main` and commits made from a detached `HEAD` skip the pipeline. A commit on any other branch runs the pre-commit pipeline before Git creates the commit and the post-commit pipeline after Git creates it.
 
-Pipeline execution is ordered as follows:
+The repository is modular. A change may include an optional backup playbook, one or more deployment playbooks, optional pyATS tests, or any combination of these units. Inventory data, Ansible variables, pyATS testbeds, test suites, and individual test scripts are maintained separately so that each can be replaced or extended for a specific environment.
 
-1. Validate Ansible playbook syntax.
-2. Back up device configurations when `playbooks/config_backup.yml` exists.
-3. Run deployment playbooks from the top level of `playbooks/`.
-4. Run pyATS tests when `tests/job.py` exists.
+## Pipeline sequence
 
-The jobs run serially. A failed job prevents dependent jobs from running.
+For a commit on a branch other than `main`, the local pipeline executes in this order:
+
+1. The `pre-commit` hook synchronizes the Python environment with `uv`.
+2. The pre-commit pipeline syntax-checks top-level Ansible playbooks.
+3. The pre-commit pipeline runs an optional backup playbook.
+4. Git creates the commit if the pre-commit pipeline succeeds.
+5. The `post-commit` hook runs top-level deployment playbooks.
+6. The post-commit pipeline runs pyATS when `tests/job.py` exists.
+
+A pre-commit pipeline failure prevents Git from creating the commit. A post-commit failure cannot remove or roll back a commit that Git has already created.
 
 ## Repository layout
 
 ```text
 .
-├── .github/workflows/ci-cd.yml   # GitHub Actions workflow
 ├── ansible.cfg                    # Ansible defaults and connection settings
 ├── backups/                       # Configuration backups
 ├── inventory/
+│   ├── inventory.yml              # Canonical Ansible inventory
 │   ├── group_vars/                # Variables organized by inventory group
 │   └── library/                   # Alternate and reference inventories
+├── local-pipeline/
+│   ├── pre-commit                 # Git pre-commit hook source
+│   ├── post-commit                # Git post-commit hook source
+│   ├── local_ci-cd-pre            # Pre-commit pipeline implementation
+│   └── local_ci-cd-post           # Post-commit pipeline implementation
 ├── playbooks/
 │   └── library/                   # Reusable playbook examples
 ├── tests/
 │   ├── config/testbeds/           # pyATS testbed definitions
 │   ├── library/                   # Example job files
-│   ├── test_suites/               # Suites and their test scripts
+│   ├── test_suites/               # Suites and test scripts
 │   └── unit_tests/                # Python unit tests
 ├── pyproject.toml                 # Python project and dependency definitions
 └── uv.lock                        # Locked Python dependency versions
 ```
 
-Files under `playbooks/library/` and `tests/libary/` are examples. The pipeline executes playbooks placed directly under `playbooks/` and executes the job at `tests/job.py`.
+Files under `playbooks/library/`, `inventory/library/`, and `tests/library/` are reference files. The pipeline executes playbooks placed directly under `playbooks/`, uses `inventory/inventory.yml`, and executes the pyATS job at `tests/job.py`.
 
 ## Prerequisites
 
 - Git
+- Bash
 - [`uv`](https://docs.astral.sh/uv/)
-- SSH access to the GitHub repository
-- Access to the network devices defined by the selected inventory or pyATS testbed
+- Access to the network devices defined by the active Ansible inventory or pyATS testbed
 - Valid device credentials
 
 The project requires Python 3.14 or later, as specified in `pyproject.toml`.
@@ -64,7 +75,7 @@ uv python install 3.14
 uv sync --locked --python 3.14
 ```
 
-Commands can be run in the managed environment with `uv run`. Activating `.venv` is not required. If direct command execution is preferred, activate it with:
+Commands can be run in the managed environment with `uv run`. Activating `.venv` is not required. To run commands directly from the environment, activate it with:
 
 ```bash
 source .venv/bin/activate
@@ -75,6 +86,36 @@ Install the Ansible collections declared in `requirements.yml` if they are not a
 ```bash
 uv run ansible-galaxy collection install -r requirements.yml
 ```
+
+## Install the local Git hooks
+
+Git does not install repository hooks when cloning a repository. Each local clone must copy the hook files from `local-pipeline/` into `.git/hooks/`. These commands replace hooks with the same names, so inspect or back up existing hooks first.
+
+```bash
+cp local-pipeline/pre-commit .git/hooks/pre-commit
+cp local-pipeline/post-commit .git/hooks/post-commit
+chmod +x .git/hooks/pre-commit .git/hooks/post-commit
+```
+
+The hooks call `local-pipeline/local_ci-cd-pre` and `local-pipeline/local_ci-cd-post` from the working tree. Confirm that all four files are executable:
+
+```bash
+test -x .git/hooks/pre-commit
+test -x .git/hooks/post-commit
+test -x local-pipeline/local_ci-cd-pre
+test -x local-pipeline/local_ci-cd-post
+```
+
+Each command exits with status zero when the corresponding file is executable. Recopy the hooks after pulling changes to `local-pipeline/pre-commit` or `local-pipeline/post-commit`.
+
+The installed hooks operate as follows:
+
+- They run for commits on any named branch except `main`.
+- They skip execution when `HEAD` is detached.
+- They run synchronously in the terminal that executes `git commit`.
+- They expect the tracked pipeline scripts to remain under `local-pipeline/`.
+- They operate on the current working tree rather than an isolated checkout; unstaged changes can therefore affect pipeline execution.
+- They use the credentials and network access available to the local user running Git.
 
 ## Change workflow
 
@@ -88,52 +129,52 @@ git pull --ff-only origin main
 git switch -c change/<change-name>
 ```
 
-Do not perform deployment work directly on `main`. The GitHub Actions workflow excludes pushes to `main`.
+The hooks intentionally skip commits made on `main`. Perform pipeline work on a separate branch.
 
-### 2. Configure Ansible
+### 2. Configure credentials
 
-#### Credentials
-
-The included group variables read credentials from `CISCO_USER` and `CISCO_PASS`. Export them for local execution:
+The included Ansible group variables and pyATS testbeds read credentials from `CISCO_USER` and `CISCO_PASS`. Export them in the shell before committing or running pipeline commands:
 
 ```bash
 export CISCO_USER='<username>'
 export CISCO_PASS='<password>'
 ```
 
-Do not commit credentials. The GitHub Actions runner obtains these values from repository secrets with the same names.
+Do not commit credentials. The hooks inherit environment variables from the process that runs `git commit`.
 
-#### Inventory and group variables
+### 3. Configure the Ansible inventory
 
 `inventory/inventory.yml` is the canonical Ansible inventory for every pipeline stage and local Ansible command. It must be the only inventory file stored directly under `inventory/`.
 
-Store alternate or reference inventory files under `inventory/library/`. To use one, copy it to the canonical path and modify the copy as required. For example:
+Store alternate or reference inventory files under `inventory/library/`. To use one, copy it to the canonical path and modify the copy as required:
 
 ```bash
 cp inventory/library/<source-inventory>.yml inventory/inventory.yml
 ```
 
-Do not configure a pipeline stage to use an inventory file from `inventory/library/`. Keeping a single execution path ensures that syntax validation, configuration backup, and deployment target the same devices and groups.
+Do not configure a pipeline stage to use an inventory file from `inventory/library/`. A single execution path ensures that syntax validation, configuration backup, and deployment target the same devices and groups.
 
 Define shared variables under `inventory/group_vars/`. Ensure that inventory group names match the corresponding group-variable filenames and the `hosts` values in each playbook.
 
-Verify the canonical inventory before running a playbook or pushing the branch:
+Verify the canonical inventory before committing:
 
 ```bash
 uv run ansible-inventory -i inventory/inventory.yml --graph
 ```
 
-#### Optional backup playbook
+### 4. Configure an optional backup playbook
 
-To enable configuration backup, create `playbooks/config_backup.yml` or copy the supplied example:
+The pre-commit pipeline searches the top level of `playbooks/` for the first `.yml` or `.yaml` file whose name begins with `config_backup`. To enable configuration backup, create a matching playbook or copy an example:
 
 ```bash
 cp playbooks/library/config_backup.yml playbooks/config_backup.yml
 ```
 
-The filename is significant: the backup stage checks specifically for `playbooks/config_backup.yml`. The deployment stage excludes files whose names end in `config_backup.yml`.
+Names such as `config_backup.yml` and `config_backup_consoles.yml` are recognized. Backup playbooks are excluded from post-commit deployment.
 
-Validate and, when appropriate, run the backup locally:
+The backup runs before Git creates the commit and uses `inventory/inventory.yml`. A backup failure stops the commit. Generated `*.cfg` files under `backups/` are ignored by Git and must not be committed.
+
+To test a backup playbook explicitly:
 
 ```bash
 uv run ansible-playbook --syntax-check \
@@ -142,35 +183,29 @@ uv run ansible-playbook \
   -i inventory/inventory.yml playbooks/config_backup.yml
 ```
 
-Generated `*.cfg` backup files are ignored by Git and must not be committed.
+### 5. Configure deployment playbooks
 
-#### Deployment playbooks
-
-Create or copy each deployment playbook into the top level of `playbooks/`. For example:
+Create or copy deployment playbooks into the top level of `playbooks/`:
 
 ```bash
-cp playbooks/library/ntp_config.yml playbooks/ntp_config.yml
+cp playbooks/library/configuration_template.yml \
+  playbooks/configuration.yml
 ```
 
-The deployment stage finds all `.yml` and `.yaml` files directly under `playbooks/`, sorts them by filename, and executes them in that order. It does not recursively execute files under `playbooks/library/`. Use filename prefixes when execution order matters.
+The post-commit pipeline processes top-level `.yml` and `.yaml` files. Files with names containing `config_backup` are skipped. Playbooks under `playbooks/library/` are not executed.
 
-Validate each deployment playbook before committing it:
+All deployment playbooks use `inventory/inventory.yml`. Review the active inventory and the effect of every playbook before committing because deployment begins after the commit is created.
+
+Validate a playbook manually when needed:
 
 ```bash
 uv run ansible-playbook --syntax-check \
-  -i inventory/inventory.yml playbooks/ntp_config.yml
+  -i inventory/inventory.yml playbooks/configuration.yml
 ```
 
-Run a playbook locally only when its effect and target inventory have been reviewed:
+### 6. Configure pyATS (optional)
 
-```bash
-uv run ansible-playbook \
-  -i inventory/inventory.yml playbooks/ntp_config.yml
-```
-
-### 3. Configure pyATS (optional)
-
-The pyATS stage is enabled only when `tests/job.py` exists. Create that file or copy and modify an example from `tests/library/`:
+The post-commit pipeline runs pyATS only when `tests/job.py` exists. Create that file or copy and modify the example from `tests/library/`:
 
 ```bash
 cp tests/library/job.py tests/job.py
@@ -182,7 +217,7 @@ The pyATS execution hierarchy is:
 
 1. `tests/job.py` is the pipeline entry point.
 2. The job loads a testbed and invokes a test suite from `tests/test_suites/`.
-3. The test suite imports and runs one or more test scripts, conventionally stored under `tests/test_suites/test_scripts/`.
+3. The test suite imports and runs one or more test scripts from `tests/test_suites/test_scripts/`.
 
 A typical layout is:
 
@@ -196,15 +231,15 @@ tests/
         └── <feature>/<test_script>.py
 ```
 
-Run the same pyATS command used by the pipeline:
+Run the same pyATS command used by the post-commit pipeline:
 
 ```bash
 uv run pyats run job tests/job.py --no-mail --no-archive
 ```
 
-Remove `tests/job.py` when pyATS validation is not required for a change.
+Remove `tests/job.py` when pyATS validation is not required.
 
-### 4. Review and commit the change
+### 7. Review and commit the change
 
 Review all modified and untracked files before staging them:
 
@@ -213,34 +248,32 @@ git status
 git diff
 ```
 
-Stage only the files required for the change, then create a local commit:
+Stage only the required files:
 
 ```bash
 git add inventory/ playbooks/ tests/
+```
+
+Create the commit:
+
+```bash
 git commit -m "Describe the network change"
 ```
 
-Do not use `git add .` without first verifying that no credentials, generated output, or unrelated files will be included.
+The pre-commit hook runs before the commit is created. If it succeeds, Git creates the commit and invokes the post-commit hook. Both hooks print pipeline progress to the terminal.
 
-### 5. Push the branch
+Do not use `git add .` without verifying that no credentials, generated output, or unrelated files will be included.
 
-Push the branch and set its upstream reference:
+### 8. Review pipeline results
 
-```bash
-git push --set-upstream origin change/<change-name>
-```
+The pipeline writes timestamped command output under `logs/`:
 
-## GitHub Actions execution and status
+- `logs/ansible-pre-cicd-*.log` contains pre-commit Ansible syntax-check and backup output.
+- `logs/ansible-post-cicd-*.log` contains post-commit Ansible deployment output.
+- `logs/pyats-post-cicd-*.log` contains post-commit pyATS output.
 
-The workflow is defined in `.github/workflows/ci-cd.yml` and runs on a self-hosted GitHub Actions worker. GitHub displays the worker state and the result of each pipeline job under the repository's **Actions** page and on the associated commit or pull request.
+The scripts also report progress and completion status in the terminal. Inspect the applicable log when a stage reports a failure.
 
-The reported jobs are:
+The current pre-commit implementation enters its general syntax-check stage only when at least one top-level `.yml` or `.yaml` playbook exists. Once that condition is met, the syntax-check command includes both `.yml` and `.yaml` files.
 
-- **Validate**: synchronizes the Python environment and syntax-checks top-level playbooks.
-- **Backup**: runs `playbooks/config_backup.yml` when present; otherwise its operational steps are skipped.
-- **Deploy**: executes top-level deployment playbooks in sorted order.
-- **Tests**: runs `tests/job.py` when present; otherwise its operational steps are skipped.
-
-Each job is reported as queued, in progress, successful, failed, cancelled, or skipped. Inspect the step logs for command output and failure details. Because the workflow uses `needs`, Backup depends on Validate, Deploy depends on Backup, and Tests depends on Deploy.
-
-Automatic runs currently apply to non-`main` pushes that modify `playbooks/**` or `test/**`, as configured in the workflow. The configured path is `test/**` (singular), while this repository stores pyATS content under `tests/**` (plural). A branch containing only changes under `tests/**` will therefore not start the workflow automatically. Start such a run manually with **Actions > NetDevOps CI/CD > Run workflow**, or include an applicable playbook change. Manual execution is available through `workflow_dispatch`.
+The current post-commit implementation records a pyATS failure in its log and terminal output but does not return that failure as the final pipeline exit status. An Ansible deployment failure exits the post-commit pipeline with a nonzero status, but the existing commit remains in local history because post-commit hooks run after commit creation.
