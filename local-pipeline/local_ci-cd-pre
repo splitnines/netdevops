@@ -22,7 +22,7 @@ playbook_dir="$repo_root/playbooks"
 log_dir="$repo_root/logs" && mkdir -p "$log_dir"
 
 ansible_log_file="$log_dir/ansible-pre-cicd-$commit.log"
-git_log_file="$log_dir/git-log.log"
+git_log_file="$log_dir/git-hooks.log"
 exec > >(tee -a >(sed $'s/\033\\[[0-9;]*m//g' >>"$git_log_file")) 2>&1
 
 cd "$repo_root"
