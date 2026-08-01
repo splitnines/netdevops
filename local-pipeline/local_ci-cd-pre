@@ -21,8 +21,9 @@ playbook_dir="$repo_root/playbooks"
 
 log_dir="$repo_root/logs" && mkdir -p "$log_dir"
 
-ts=$(date '+%Y%m%d-%H%M%S')
-ansible_log_file="$log_dir/ansible-pre-cicd-$ts-$$.log"
+ansible_log_file="$log_dir/ansible-post-cicd-$commit.log"
+git_log_file="$log_dir/git-log-$commit.log"
+exec > >(tee -a "$git_log_file") 2>&1
 
 cd "$repo_root"
 

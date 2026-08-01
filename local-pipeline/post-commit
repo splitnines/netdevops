@@ -13,6 +13,10 @@ branch=$(git branch --show-current)
 playbook_dir="$repo_root/playbooks"
 tests_dir="$repo_root/tests"
 
+log_dir="$repo_root/logs" && mkdir -p "$log_dir"
+git_log_file="$log_dir/git-log-$commit.log"
+exec > >(tee -a "$git_log_file") 2>&1
+
 if [[ -z "$branch" ]]; then
     echo "$(logger "post") Detached HEAD; skipping CI/CD."
     exit 0
