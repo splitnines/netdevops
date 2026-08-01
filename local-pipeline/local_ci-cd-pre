@@ -2,6 +2,11 @@
 
 set -eu
 
+RED='\033[0;31m'
+GREEN='\033[0;33m'
+YELLOW='\033[0;31m'
+RESET='\033[0m'
+
 logger() {
     local prefix=${1:-cicd}
     ts=$(date '+%Y-%m-%d %H:%M:%S')
@@ -45,7 +50,8 @@ if [[ "$playbooks" = true ]]; then
     uv python install 3.14
     uv sync --python 3.14
     echo ""
-    echo "$(logger "pre") Python environment sync complete."
+    # echo "$(logger "pre") Python environment sync complete."
+    printf "%s ${GREEN}Python environment sync complete" "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
@@ -66,7 +72,8 @@ if [[ "$playbooks" = true ]]; then
         exit 1
     fi
     echo ""
-    echo "$(logger "pre") Ansible syntax check successful"
+    # echo "$(logger "pre") Ansible syntax check successful"
+    printf "%s ${GREEN}Ansible syntax check successful" "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
