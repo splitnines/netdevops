@@ -50,8 +50,8 @@ if [[ "$playbooks" = true ]]; then
     uv python install 3.14
     uv sync --python 3.14
     echo ""
-    # echo "$(logger "pre") Python environment sync complete."
-    printf "${YELLOW}%s Python environment sync complete${RESET}\n" "$(logger "pre")"
+    printf "${YELLOW}%s Python environment sync complete${RESET}\n" \
+        "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
@@ -66,13 +66,15 @@ if [[ "$playbooks" = true ]]; then
         -exec uv run ansible-playbook \
         --syntax-check \
         -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
-        printf "${RED}%s Ansible syntax check failed${RESET}\n" "$(logger "pre")"
+        printf "${RED}%s Ansible syntax check failed${RESET}\n" \
+            "$(logger "pre")"
         echo "========================================"
         echo ""
         exit 1
     fi
     echo ""
-    printf "${GREEN}%s Ansible syntax check successful${RESET}\n" "$(logger "pre")"
+    printf "${GREEN}%s Ansible syntax check successful${RESET}\n" \
+        "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
@@ -94,19 +96,23 @@ if [[ "$backup" = true ]]; then
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
         "$playbook_dir"/"$backup_file" >>"$ansible_log_file" 2>&1; then
-        printf "${RED}%s Ansible backups failed, exiting pipeline${RESET}\n" "$(logger "pre")"
+        printf "${RED}%s Ansible backups failed, exiting pipeline${RESET}\n" \
+            "$(logger "pre")"
         echo "========================================"
         echo ""
         exit 1
     fi
-    printf "${GREEN}%s Ansible backups completed successfully${RESET}\n" "$(logger "pre")"
-    printf "${YELLOW}%s Backups saved to %s/backups${RESET}\n" "$(logger "pre")" "$repo_root"
+    printf "${GREEN}%s Ansible backups completed successfully${RESET}\n" \
+        "$(logger "pre")"
+    printf "${YELLOW}%s Backups saved to %s/backups${RESET}\n" \
+        "$(logger "pre")" "$repo_root"
     echo "========================================"
     echo ""
 fi
 
 if [[ "$playbooks" = true || "$backup" = true ]]; then
-    echo "$(logger "pre") Local CI/CD completed successfully for $branch at $commit."
+    printf "${GREEN}%s Local CI/CD completed successfully for %s at %s${RESET}\n" \
+        "$(logger "pre")" "$branch" "$commit"
     echo "========================================"
     echo ""
 fi
