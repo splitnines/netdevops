@@ -36,12 +36,10 @@ done
 
 if [[ "$playbooks" = true ]]; then
     echo ""
-    echo "========================================"
     echo "$(logger "pre") Local CI/CD started"
     echo "$(logger "pre") Repository: $repo_root"
     echo "$(logger "pre") Branch:     $branch"
     echo "$(logger "pre") Commit:     $commit"
-    echo "========================================"
 
     # sync python environment
     echo ""
@@ -52,7 +50,6 @@ if [[ "$playbooks" = true ]]; then
     echo ""
     printf "${YELLOW}%s Python environment sync complete${RESET}\n" \
         "$(logger "pre")"
-    echo "========================================"
     echo ""
 fi
 
@@ -68,14 +65,12 @@ if [[ "$playbooks" = true ]]; then
         -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
         printf "${RED}%s Ansible syntax check failed${RESET}\n" \
             "$(logger "pre")"
-        echo "========================================"
         echo ""
         exit 1
     fi
     echo ""
     printf "${GREEN}%s Ansible syntax check successful${RESET}\n" \
         "$(logger "pre")"
-    echo "========================================"
     echo ""
 fi
 
@@ -98,7 +93,6 @@ if [[ "$backup" = true ]]; then
         "$playbook_dir"/"$backup_file" >>"$ansible_log_file" 2>&1; then
         printf "${RED}%s Ansible backups failed, exiting pipeline${RESET}\n" \
             "$(logger "pre")"
-        echo "========================================"
         echo ""
         exit 1
     fi
@@ -106,13 +100,11 @@ if [[ "$backup" = true ]]; then
         "$(logger "pre")"
     printf "${YELLOW}%s Backups saved to %s/backups${RESET}\n" \
         "$(logger "pre")" "$repo_root"
-    echo "========================================"
     echo ""
 fi
 
 if [[ "$playbooks" = true || "$backup" = true ]]; then
     printf "${GREEN}%s Local CI/CD completed successfully for %s at %s${RESET}\n" \
         "$(logger "pre")" "$branch" "$commit"
-    echo "========================================"
     echo ""
 fi
