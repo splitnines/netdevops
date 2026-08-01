@@ -66,7 +66,8 @@ if [[ "$playbooks" = true ]]; then
         -exec uv run ansible-playbook \
         --syntax-check \
         -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
-        echo "$(logger "pre") Ansible syntax check failed, exiting pipeline"
+        # echo "$(logger "pre") Ansible syntax check failed, exiting pipeline"
+        printf "${RED}%s Ansible syntax check failed${RESET}\n" "$(logger "pre")"
         echo "========================================"
         echo ""
         exit 1
