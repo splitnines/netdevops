@@ -2,11 +2,11 @@
 
 ## Overview
 
-This repository defines a local Git-driven workflow for applying and validating network changes on Cisco IOS XE devices. Ansible performs syntax validation, configuration backup, and deployment. pyATS performs optional post-deployment validation.
+This repository defines a local Git-driven workflow for applying and validating network changes on Cisco IOS XE devices. Ansible performs syntax validation, configuration backup and deployment. pyATS performs optional post-deployment validation.
 
 The pipeline runs through Git `pre-commit` and `post-commit` hooks installed in each local clone. Commits on `main` and commits made from a detached `HEAD` skip the pipeline. A commit on any other branch runs the pre-commit pipeline before Git creates the commit and the post-commit pipeline after Git creates it.
 
-The repository is modular. A change may include an optional backup playbook, one or more deployment playbooks, optional pyATS tests, or any combination of these units. Inventory data, Ansible variables, pyATS testbeds, test suites, and individual test scripts are maintained separately so that each can be replaced or extended for a specific environment.
+The repository is modular. A change may include an optional backup playbook, one or more deployment playbooks, optional pyATS tests, or any combination of these units. Inventory data, Ansible variables, pyATS testbeds, test suites and individual test scripts are maintained separately so that each can be replaced or extended for a specific environment.
 
 ## Pipeline sequence
 
@@ -47,7 +47,7 @@ A pre-commit pipeline failure prevents Git from creating the commit. A post-comm
 └── uv.lock                        # Locked Python dependency versions
 ```
 
-Files under `playbooks/library/` and `tests/library/` are reference files. The pipeline executes playbooks placed directly under `playbooks/`, uses `inventory/inventory.yml`, and executes the pyATS job at `tests/job.py`.
+Files under `playbooks/library/` and `tests/library/` are reference files. The pipeline executes playbooks placed directly under `playbooks/`, uses `inventory/inventory.yml` and executes the pyATS job at `tests/job.py`.
 
 ## Prerequisites
 
@@ -148,7 +148,7 @@ Do not commit credentials. The hooks inherit environment variables from the proc
 
 Define the required device groups and hosts in `inventory/inventory.yml`. For each host, set the appropriate management address and any host-specific connection values. Ensure that group names match the `hosts` values used by the playbooks.
 
-`inventory/group_vars/all_devices.yml` contains connection settings, credential lookups, and other variables shared by all managed devices. Keep every managed device in the `all_devices` inventory group so that these variables apply consistently. Update this file only when the shared settings for the environment need to change. Credentials must continue to use the `CISCO_USER` and `CISCO_PASS` environment variables rather than literal values committed to the repository.
+`inventory/group_vars/all_devices.yml` contains connection settings, credential lookups and other variables shared by all managed devices. Keep every managed device in the `all_devices` inventory group so that these variables apply consistently. Update this file only when the shared settings for the environment need to change. Credentials must continue to use the `CISCO_USER` and `CISCO_PASS` environment variables rather than literal values committed to the repository.
 
 Review the resulting host and group hierarchy before committing:
 
@@ -279,25 +279,25 @@ The current pre-commit implementation enters its general syntax-check stage only
 
 The current post-commit implementation records a pyATS failure in its log and terminal output but does not return that failure as the final pipeline exit status. An Ansible deployment failure exits the post-commit pipeline with a nonzero status, but the existing commit remains in local history because post-commit hooks run after commit creation.
 
-### 9. Push the change branch
+### 9. Push the change branch to a remote repository (optional)
 
-After reviewing the commit and local pipeline results, confirm the current branch and working-tree status:
+If the project uses a remote Git repository, push the change branch after reviewing the commit and local pipeline results. First confirm the current branch and working-tree status:
 
 ```bash
 git branch --show-current
 git status
 ```
 
-Push the change branch to `origin` and configure its upstream tracking branch:
+The following example pushes the change branch to a remote named `origin` and configures its upstream tracking branch:
 
 ```bash
 git push --set-upstream origin change/<change-name>
 ```
 
-Replace `change/<change-name>` with the actual local branch name. After the upstream is configured, subsequent commits can be pushed with:
+Replace `change/<change-name>` with the actual local branch name and `origin` with the configured remote name when different. After the upstream is configured, subsequent commits can be pushed with:
 
 ```bash
 git push
 ```
 
-Pushing does not invoke the local `pre-commit` or `post-commit` hooks. Those hooks run only when a local commit is created.
+This step is not required when the repository is used only locally. Pushing does not invoke the local `pre-commit` or `post-commit` hooks; those hooks run only when a local commit is created.
