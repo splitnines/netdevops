@@ -3,8 +3,8 @@
 set -eu
 
 RED='\033[0;31m'
-GREEN='\033[0;33m'
-YELLOW='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 RESET='\033[0m'
 
 logger() {
@@ -51,7 +51,7 @@ if [[ "$playbooks" = true ]]; then
     uv sync --python 3.14
     echo ""
     # echo "$(logger "pre") Python environment sync complete."
-    printf "%s ${GREEN}Python environment sync complete" "$(logger "pre")"
+    printf "%s ${GREEN}Python environment sync complete${RESET}" "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
@@ -73,7 +73,7 @@ if [[ "$playbooks" = true ]]; then
     fi
     echo ""
     # echo "$(logger "pre") Ansible syntax check successful"
-    printf "%s ${GREEN}Ansible syntax check successful" "$(logger "pre")"
+    printf "%s ${GREEN}Ansible syntax check successful${RESET}" "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
