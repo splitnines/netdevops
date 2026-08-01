@@ -25,8 +25,7 @@ log_dir="$repo_root/logs" && mkdir -p "$log_dir"
 ansible_log_file="$log_dir/ansible-post-cicd-$commit.log"
 pyats_log_file="$log_dir/pyats-post-cicd-$commit.log"
 git_log_file="$log_dir/git-log.log"
-
-exec > >(tee -a "$git_log_file") 2>&1
+exec > >(tee -a >(sed $'s/\03[0-9]\\[[0-9;]*m//g' >>"$git_log_file")) 2>&1
 
 cd "$repo_root"
 
