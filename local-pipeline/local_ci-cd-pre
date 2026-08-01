@@ -73,7 +73,7 @@ if [[ "$playbooks" = true ]]; then
     fi
     echo ""
     # echo "$(logger "pre") Ansible syntax check successful"
-    printf "%s ${GREEN}Ansible syntax check successful${RESET}\n" "$(logger "pre")"
+    printf "${GREEN}%s Ansible syntax check successful${RESET}\n" "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
