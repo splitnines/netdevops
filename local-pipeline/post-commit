@@ -16,7 +16,7 @@ tests_dir="$repo_root/tests"
 commit=$(git rev-parse HEAD)
 
 log_dir="$repo_root/logs" && mkdir -p "$log_dir"
-git_log_file="$log_dir/git-log-$commit.log"
+git_log_file="$log_dir/git-log.log"
 exec > >(tee -a "$git_log_file") 2>&1
 
 if [[ -z "$branch" ]]; then
