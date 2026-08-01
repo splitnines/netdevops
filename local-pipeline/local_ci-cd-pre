@@ -66,14 +66,12 @@ if [[ "$playbooks" = true ]]; then
         -exec uv run ansible-playbook \
         --syntax-check \
         -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
-        # echo "$(logger "pre") Ansible syntax check failed, exiting pipeline"
         printf "${RED}%s Ansible syntax check failed${RESET}\n" "$(logger "pre")"
         echo "========================================"
         echo ""
         exit 1
     fi
     echo ""
-    # echo "$(logger "pre") Ansible syntax check successful"
     printf "${GREEN}%s Ansible syntax check successful${RESET}\n" "$(logger "pre")"
     echo "========================================"
     echo ""
@@ -96,13 +94,13 @@ if [[ "$backup" = true ]]; then
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
         "$playbook_dir"/"$backup_file" >>"$ansible_log_file" 2>&1; then
-        echo "$(logger "pre") Ansible backup failed, exiting pipeline"
+        printf "${RED}%s Ansible backups failed, exiting pipeline${RESET}\n" "$(logger "pre")"
         echo "========================================"
         echo ""
         exit 1
     fi
-    echo "$(logger "pre") Ansible backups completed successfully."
-    echo "$(logger "pre") Backups saved to $repo_root/backups"
+    printf "${GREEN}%s Ansible backups completed successfully${RESET}\n" "$(logger "pre")"
+    printf "${YELLOW}%s Backups saved to %s/backups${RESET}\n" "$(logger "pre")" "$repo_root"
     echo "========================================"
     echo ""
 fi
