@@ -50,8 +50,8 @@ done
 if [[ "$playbooks" = true ]]; then
     echo "$(logger "pre") Local CI/CD started"
     echo "$(logger "pre") Repository: $repo_root"
-    echo "$(logger "pre") Branch:     $branch"
-    echo "$(logger "pre") Commit:     $commit"
+    echo "$(logger "pre") Branch: $branch"
+    echo "$(logger "pre") Commit: $commit"
 
     # sync python environment
     echo "$(logger "pre") Sync'ing python environment..."

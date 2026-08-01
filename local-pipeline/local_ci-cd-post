@@ -39,8 +39,8 @@ done
 if [[ "$playbooks" = true ]]; then
     echo "$(logger "post") Local CI/CD started"
     echo "$(logger "post") Repository: $repo_root"
-    echo "$(logger "post") Branch:     $branch"
-    echo "$(logger "post") Commit:     $commit"
+    echo "$(logger "post") Branch: $branch"
+    echo "$(logger "post") Commit: $commit"
 fi
 
 # Ansible playbooks
