@@ -42,8 +42,8 @@ if [[ "$playbooks" = true ]]; then
 
     # sync python environment
     echo "$(logger "pre") Sync'ing python environment..."
-    uv python install 3.14
-    uv sync --python 3.14
+    uv python install 3.14 >/dev/null 2>&1
+    uv sync --python 3.14 >/dev/null 2>&1
     printf "${YELLOW}%s Python environment sync complete${RESET}\n" \
         "$(logger "pre")"
 fi
