@@ -144,11 +144,11 @@ Do not commit credentials. The hooks inherit environment variables from the proc
 
 ### 3. Configure the Ansible inventory
 
-`inventory/inventory.yml` is the canonical and only Ansible inventory used by the local pipeline and manual Ansible commands. Update this file directly for the target environment before committing a change.
+`inventory/inventory.yml` is the Ansible inventory used by the local pipeline and manual Ansible commands. Update this file directly for the target environment before committing a change.
 
 Define the required device groups and hosts in `inventory/inventory.yml`. For each host, set the appropriate management address and any host-specific connection values. Ensure that group names match the `hosts` values used by the playbooks.
 
-`inventory/group_vars/all_devices.yml` contains connection settings, credential lookups and other variables shared by all managed devices. Keep every managed device in the `all_devices` inventory group so that these variables apply consistently. Update this file only when the shared settings for the environment need to change. Credentials must continue to use the `CISCO_USER` and `CISCO_PASS` environment variables rather than literal values committed to the repository.
+`inventory/group_vars/all_devices.yml` contains connection settings, credential lookups and other variables shared by all managed devices. Keep every managed device in the `all_devices` inventory group so that these variables apply consistently. Update this file only when the shared settings for the environment need to change.
 
 Review the resulting host and group hierarchy before committing:
 
@@ -165,7 +165,7 @@ uv run ansible-inventory -i inventory/inventory.yml \
 
 ### 4. Configure an optional backup playbook
 
-The pre-commit pipeline searches the top level of `playbooks/` for the first `.yml` or `.yaml` file whose name begins with `config_backup`. To enable configuration backup, create a matching playbook or copy an example:
+The pre-commit pipeline searches the top level of `playbooks/` for the first `.yml` or `.yaml` file whose name begins with `config_backup`. To enable configuration backup, create a matching playbook or copy and modify an example:
 
 ```bash
 cp playbooks/library/config_backup.yml playbooks/config_backup.yml
