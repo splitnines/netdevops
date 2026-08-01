@@ -51,7 +51,7 @@ if [[ "$playbooks" = true ]]; then
     uv sync --python 3.14
     echo ""
     # echo "$(logger "pre") Python environment sync complete."
-    printf "%s ${GREEN}Python environment sync complete${RESET}" "$(logger "pre")"
+    printf "%s ${GREEN}Python environment sync complete${RESET}\n" "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
@@ -73,7 +73,7 @@ if [[ "$playbooks" = true ]]; then
     fi
     echo ""
     # echo "$(logger "pre") Ansible syntax check successful"
-    printf "%s ${GREEN}Ansible syntax check successful${RESET}" "$(logger "pre")"
+    printf "%s ${GREEN}Ansible syntax check successful${RESET}\n" "$(logger "pre")"
     echo "========================================"
     echo ""
 fi
