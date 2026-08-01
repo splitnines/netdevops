@@ -1,0 +1,57 @@
+all:
+  children:
+    all_devices:
+      hosts:
+        r1:
+          ansible_host: 10.1.254.1
+        r2:
+          ansible_host: 10.1.254.2
+        r3:
+          ansible_host: 10.2.254.3
+        r4:
+          ansible_host: 10.2.254.4
+        r5:
+          ansible_host: 10.2.254.5
+        r6:
+          ansible_host: 10.3.254.6
+
+    ospfv3_routers:
+      hosts:
+        r3:
+        r4:
+        r5:
+
+    eigrp_routers:
+      hosts:
+        r1:
+        r2:
+
+    lab_entry:
+      hosts:
+        r1:
+          ansible_host: 10.0.0.248
+
+    consoles:
+      vars:
+        ansible_connection: local
+        telnet_user: "{{ lookup('env', 'CISCO_USER') }}"
+        telnet_password: "{{ lookup('env', 'CISCO_PASS') }}"
+      hosts:
+        r1:
+          ansible_host: localhost
+          telnet_port: 9001
+        r2:
+          ansible_host: localhost
+          telnet_port: 9002
+        r3:
+          ansible_host: localhost
+          telnet_port: 9003
+        r4:
+          ansible_host: localhost
+          telnet_port: 9004
+        r5:
+          ansible_host: localhost
+          telnet_port: 9005
+        r6:
+          ansible_host: localhost
+          telnet_port: 9006

@@ -28,9 +28,9 @@ A pre-commit pipeline failure prevents Git from creating the commit. A post-comm
 ├── ansible.cfg                    # Ansible defaults and connection settings
 ├── backups/                       # Configuration backups
 ├── inventory/
-│   ├── inventory.yml              # Canonical Ansible inventory
-│   ├── group_vars/                # Variables organized by inventory group
-│   └── library/                   # Alternate and reference inventories
+│   ├── inventory.yml              # Canonical inventory; update for the target environment
+│   └── group_vars/
+│       └── all_devices.yml        # Shared variables for all managed devices
 ├── local-pipeline/
 │   ├── pre-commit                 # Git pre-commit hook source
 │   ├── post-commit                # Git post-commit hook source
@@ -47,7 +47,7 @@ A pre-commit pipeline failure prevents Git from creating the commit. A post-comm
 └── uv.lock                        # Locked Python dependency versions
 ```
 
-Files under `playbooks/library/`, `inventory/library/`, and `tests/library/` are reference files. The pipeline executes playbooks placed directly under `playbooks/`, uses `inventory/inventory.yml`, and executes the pyATS job at `tests/job.py`.
+Files under `playbooks/library/` and `tests/library/` are reference files. The pipeline executes playbooks placed directly under `playbooks/`, uses `inventory/inventory.yml`, and executes the pyATS job at `tests/job.py`.
 
 ## Prerequisites
 
@@ -144,22 +144,23 @@ Do not commit credentials. The hooks inherit environment variables from the proc
 
 ### 3. Configure the Ansible inventory
 
-`inventory/inventory.yml` is the canonical Ansible inventory for every pipeline stage and local Ansible command. It must be the only inventory file stored directly under `inventory/`.
+`inventory/inventory.yml` is the canonical and only Ansible inventory used by the local pipeline and manual Ansible commands. Update this file directly for the target environment before committing a change.
 
-Store alternate or reference inventory files under `inventory/library/`. To use one, copy it to the canonical path and modify the copy as required:
+Define the required device groups and hosts in `inventory/inventory.yml`. For each host, set the appropriate management address and any host-specific connection values. Ensure that group names match the `hosts` values used by the playbooks.
 
-```bash
-cp inventory/library/<source-inventory>.yml inventory/inventory.yml
-```
+`inventory/group_vars/all_devices.yml` contains connection settings, credential lookups, and other variables shared by all managed devices. Keep every managed device in the `all_devices` inventory group so that these variables apply consistently. Update this file only when the shared settings for the environment need to change. Credentials must continue to use the `CISCO_USER` and `CISCO_PASS` environment variables rather than literal values committed to the repository.
 
-Do not configure a pipeline stage to use an inventory file from `inventory/library/`. A single execution path ensures that syntax validation, configuration backup, and deployment target the same devices and groups.
-
-Define shared variables under `inventory/group_vars/`. Ensure that inventory group names match the corresponding group-variable filenames and the `hosts` values in each playbook.
-
-Verify the canonical inventory before committing:
+Review the resulting host and group hierarchy before committing:
 
 ```bash
 uv run ansible-inventory -i inventory/inventory.yml --graph
+```
+
+Display the resolved variables for a specific device when validating inventory behavior:
+
+```bash
+uv run ansible-inventory -i inventory/inventory.yml \
+  --host <device-name>
 ```
 
 ### 4. Configure an optional backup playbook
