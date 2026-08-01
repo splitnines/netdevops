@@ -35,28 +35,22 @@ for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yaml; do
 done
 
 if [[ "$playbooks" = true ]]; then
-    echo ""
     echo "$(logger "pre") Local CI/CD started"
     echo "$(logger "pre") Repository: $repo_root"
     echo "$(logger "pre") Branch:     $branch"
     echo "$(logger "pre") Commit:     $commit"
 
     # sync python environment
-    echo ""
     echo "$(logger "pre") Sync'ing python environment..."
-    echo ""
     uv python install 3.14
     uv sync --python 3.14
-    echo ""
     printf "${YELLOW}%s Python environment sync complete${RESET}\n" \
         "$(logger "pre")"
-    echo ""
 fi
 
 # Ansible syntax check
 if [[ "$playbooks" = true ]]; then
     echo "$(logger "pre") Running Ansible Syntax Check..."
-    echo ""
 
     if ! find playbooks -maxdepth 1 -type f \
         \( -name '*.yml' -o -name '*.yaml' \) \
@@ -65,13 +59,10 @@ if [[ "$playbooks" = true ]]; then
         -i inventory/inventory.yml {} + >>"$ansible_log_file" 2>&1; then
         printf "${RED}%s Ansible syntax check failed${RESET}\n" \
             "$(logger "pre")"
-        echo ""
         exit 1
     fi
-    echo ""
     printf "${GREEN}%s Ansible syntax check successful${RESET}\n" \
         "$(logger "pre")"
-    echo ""
 fi
 
 # Ansible backups
@@ -87,24 +78,20 @@ done
 
 if [[ "$backup" = true ]]; then
     echo "$(logger "pre") Runnning Ansible Backups..."
-    echo ""
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
         "$playbook_dir"/"$backup_file" >>"$ansible_log_file" 2>&1; then
         printf "${RED}%s Ansible backups failed, exiting pipeline${RESET}\n" \
             "$(logger "pre")"
-        echo ""
         exit 1
     fi
     printf "${GREEN}%s Ansible backups completed successfully${RESET}\n" \
         "$(logger "pre")"
     printf "${YELLOW}%s Backups saved to %s/backups${RESET}\n" \
         "$(logger "pre")" "$repo_root"
-    echo ""
 fi
 
 if [[ "$playbooks" = true || "$backup" = true ]]; then
     printf "${GREEN}%s Local CI/CD completed successfully for %s at %s${RESET}\n" \
         "$(logger "pre")" "$branch" "$commit"
-    echo ""
 fi
