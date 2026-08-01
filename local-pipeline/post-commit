@@ -13,6 +13,8 @@ branch=$(git branch --show-current)
 playbook_dir="$repo_root/playbooks"
 tests_dir="$repo_root/tests"
 
+commit=$(git rev-parse HEAD)
+
 log_dir="$repo_root/logs" && mkdir -p "$log_dir"
 git_log_file="$log_dir/git-log-$commit.log"
 exec > >(tee -a "$git_log_file") 2>&1
@@ -26,8 +28,6 @@ if [[ "$branch" = "main" ]]; then
     echo "$(logger "post") Commit is on main; skipping CI/CD."
     exit 0
 fi
-
-commit=$(git rev-parse HEAD)
 
 pipeline="$repo_root/local-pipeline/local_ci-cd-post"
 
