@@ -2,6 +2,11 @@
 
 set -eu
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
+
 logger() {
     local prefix=${1:-cicd}
     ts=$(date '+%Y-%m-%d %H:%M:%S')
@@ -44,7 +49,6 @@ fi
 # Ansible playbooks
 if [[ "$playbooks" = true ]]; then
     echo "$(logger "post") Running Ansible playbooks..."
-    echo ""
     for playbook in playbooks/*.yml playbooks/*.yaml; do
         [[ -f "$playbook" ]] || continue
 
@@ -59,16 +63,13 @@ if [[ "$playbooks" = true ]]; then
         if ! uv run ansible-playbook \
             -i inventory/inventory.yml \
             "$playbook" >>"$ansible_log_file" 2>&1; then
-            echo "$(logger "post") Playbook failed: $playbook"
-            echo "========================================"
-            echo ""
+            printf "${RED}%s Ansible playbook failed: %s${RESET}\n" \
+                "$(logger "pre")" "$playbook"
             exit 1
         fi
     done
-    echo ""
-    echo "$(logger "post") Ansible playbooks completed successfully."
-    echo "========================================"
-    echo ""
+    printf "${GREEN}%s Ansible playbooks completed successfully${RESET}\n" \
+        "$(logger "pre")"
 fi
 
 # pyATS tests
@@ -78,19 +79,16 @@ if [[ -f "$tests_dir"/job.py ]]; then
     echo ""
 
     if uv run pyats run job tests/job.py --no-mail --no-archive >>"$pyats_log_file" 2>&1; then
-        echo "$(logger "post") pyATS tests completeed successfully."
-        echo "========================================"
-        echo ""
+        printf "${GREEN}%s pyATS tests completed successfully${RESET}\n" \
+            "$(logger "pre")"
     else
         pyats_status=$?
-        echo "$(logger "post") pyATS tests failed with status $pyats_status"
-        echo "========================================"
-        echo ""
+        printf "${RED}%s pyATS tests failed with status %s${RESET}\n" \
+            "$(logger "pre")" "$pyats_status"
     fi
 fi
 
 if [[ "$playbooks" = true || -f "$tests_dir"/job.py ]]; then
-    echo "$(logger "post") Local CI/CD completed successfully for $branch at $commit."
-    echo "========================================"
-    echo ""
+    printf "${GREEN}%s Local CI/CD completed successfully for %s at %s${RESET}\n" \
+        "$(logger "pre")" "$branch" "$commit"
 fi

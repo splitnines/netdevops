@@ -26,6 +26,18 @@ ansible_log_file="$log_dir/ansible-pre-cicd-$ts-$$.log"
 
 cd "$repo_root"
 
+if [[ -z "$branch" ]]; then
+    printf "${YELLOW}%s Detached HEAD; skipping CI/CD${RESET}" \
+        "$(logger "post")"
+    exit 0
+fi
+
+if [[ "$branch" = "main" ]]; then
+    echo "$(logger "post") Commit is on main; skipping CI/CD."
+    printf "${YELLOW}%s Commit is on main; skipping CI/CD${RESET}" \
+        "$(logger "post")"
+    exit 0
+fi
 playbooks=false
 for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yaml; do
     if [[ -f "$file" ]]; then
