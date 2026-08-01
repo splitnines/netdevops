@@ -12,6 +12,10 @@ repo_root=$(git rev-parse --show-toplevel) || exit 1
 branch=$(git branch --show-current)
 playbook_dir="$repo_root/playbooks"
 
+log_dir="$repo_root/logs" && mkdir -p "$log_dir"
+git_log_file="$log_dir/git-log.log"
+exec > >(tee -a "$git_log_file") 2>&1
+
 if [[ -z "$branch" ]]; then
     echo "$(logger "pre") Detached HEAD; skipping CI/CD."
     exit 0

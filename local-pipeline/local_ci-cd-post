@@ -8,9 +8,9 @@ GREEN='\033[0;32m'
 RESET='\033[0m'
 
 logger() {
-    local prefix=${1:-cicd}
+    local postfix=${1:-cicd}
     ts=$(date '+%Y-%m-%d %H:%M:%S')
-    printf '%s [%s-commit]:' "$ts" "$prefix"
+    printf '%s [%s-commit]:' "$ts" "$postfix"
 }
 
 repo_root=${1:?Missing repository root}
@@ -24,7 +24,7 @@ log_dir="$repo_root/logs" && mkdir -p "$log_dir"
 
 ansible_log_file="$log_dir/ansible-post-cicd-$commit.log"
 pyats_log_file="$log_dir/pyats-post-cicd-$commit.log"
-git_log_file="$log_dir/git-log-$commit.log"
+git_log_file="$log_dir/git-log.log"
 
 exec > >(tee -a "$git_log_file") 2>&1
 
@@ -63,12 +63,12 @@ if [[ "$playbooks" = true ]]; then
             -i inventory/inventory.yml \
             "$playbook" >>"$ansible_log_file" 2>&1; then
             printf "${RED}%s Ansible playbook failed: %s${RESET}\n" \
-                "$(logger "pre")" "$playbook"
+                "$(logger "post")" "$playbook"
             exit 1
         fi
     done
     printf "${GREEN}%s Ansible playbooks completed successfully${RESET}\n" \
-        "$(logger "pre")"
+        "$(logger "post")"
 fi
 
 # pyATS tests
@@ -79,15 +79,15 @@ if [[ -f "$tests_dir"/job.py ]]; then
 
     if uv run pyats run job tests/job.py --no-mail --no-archive >>"$pyats_log_file" 2>&1; then
         printf "${GREEN}%s pyATS tests completed successfully${RESET}\n" \
-            "$(logger "pre")"
+            "$(logger "post")"
     else
         pyats_status=$?
         printf "${RED}%s pyATS tests failed with status %s${RESET}\n" \
-            "$(logger "pre")" "$pyats_status"
+            "$(logger "post")" "$pyats_status"
     fi
 fi
 
 if [[ "$playbooks" = true || -f "$tests_dir"/job.py ]]; then
     printf "${GREEN}%s Local post-commit CI/CD completed successfully for %s at %s${RESET}\n" \
-        "$(logger "pre")" "$branch" "$commit"
+        "$(logger "post")" "$branch" "$commit"
 fi
