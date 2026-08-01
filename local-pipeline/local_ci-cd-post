@@ -37,13 +37,10 @@ for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yml; do
 done
 
 if [[ "$playbooks" = true ]]; then
-    echo ""
-    echo "========================================"
     echo "$(logger "post") Local CI/CD started"
     echo "$(logger "post") Repository: $repo_root"
     echo "$(logger "post") Branch:     $branch"
     echo "$(logger "post") Commit:     $commit"
-    echo "========================================"
 fi
 
 # Ansible playbooks
@@ -89,6 +86,6 @@ if [[ -f "$tests_dir"/job.py ]]; then
 fi
 
 if [[ "$playbooks" = true || -f "$tests_dir"/job.py ]]; then
-    printf "${GREEN}%s Local CI/CD completed successfully for %s at %s${RESET}\n" \
+    printf "${GREEN}%s Local post-commit CI/CD completed successfully for %s at %s${RESET}\n" \
         "$(logger "pre")" "$branch" "$commit"
 fi

@@ -38,6 +38,7 @@ if [[ "$branch" = "main" ]]; then
         "$(logger "post")"
     exit 0
 fi
+
 playbooks=false
 for file in "$playbook_dir"/*.yml "$playbook_dir"/*.yaml; do
     if [[ -f "$file" ]]; then
@@ -104,6 +105,6 @@ if [[ "$backup" = true ]]; then
 fi
 
 if [[ "$playbooks" = true || "$backup" = true ]]; then
-    printf "${GREEN}%s Local CI/CD completed successfully for %s at %s${RESET}\n" \
+    printf "${GREEN}%s Local pre-commit CI/CD completed successfully for %s at %s${RESET}\n" \
         "$(logger "pre")" "$branch" "$commit"
 fi
