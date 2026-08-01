@@ -35,7 +35,11 @@ class TestIpv4ProtocolsOspf(aetest.Testcase):
         try:
             parsed_output = self.device.parse("show ip protocols")
             self.ip_protocols_ospf = parsed_output["protocols"]["ospf"]
-        except SchemaEmptyParserError, SchemaMissingKeyError:
+        except (
+            SchemaEmptyParserError,
+            SchemaMissingKeyError,
+            UnboundLocalError,
+        ):
             self.failed(f"{self.device.name}: no ospf in ip protocols")
             return
 
