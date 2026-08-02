@@ -1,0 +1,16 @@
+---
+- name: Show commands
+  hosts: all_devices
+  gather_facts: false
+
+  tasks:
+    - name: Gather facts
+      cisco.ios.ios_facts:
+        gather_subset: all
+        gather_network_resources:
+          - bgp_global
+          - bgp_address_family
+
+    - name: Display facts
+      ansible.builtin.debug:
+        var: ansible_facts

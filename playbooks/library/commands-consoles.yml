@@ -35,7 +35,7 @@
             - "end"
             - "terminal length 24"
             - "\u001d"
-      register: results
+      # register: results
       changed_when: false
       delegate_to: localhost
       vars:

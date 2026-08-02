@@ -1,0 +1,33 @@
+---
+- name: Show commands
+  hosts: all_devices
+  gather_facts: false
+
+  tasks:
+    - name: Show commands
+      cisco.ios.ios_command:
+        commands:
+          - show bgp ipv4 unicast summary
+          - show bgp ipv6 unicast summary
+      register: out
+
+    - name: Results
+      ansible.builtin.debug:
+        msg: |
+          {% for host in ansible_play_hosts_all %}
+          ==================== {{ host }} ====================
+          {% set outputs = hostvars[host].get('out', {}).get('stdout_lines', []) %}
+          {% if outputs %}
+          {% for output in outputs %}
+          {% if output is string %}
+          {{ output | replace('\\n', '\n') }}
+          {% else %}
+          {{ output | join('\n') | replace('\\n', '\n') }}
+          {% endif %}
+
+          {% endfor %}
+          {% else %}
+          No output collected
+          {% endif %}
+          {% endfor %}
+      run_once: true

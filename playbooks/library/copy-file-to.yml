@@ -1,0 +1,38 @@
+---
+- name: Show commands
+  hosts: all_devices
+  gather_facts: false
+
+  tasks:
+    - name: Verify SCP server enabled
+      cisco.ios.ios_command:
+        commands:
+          - show running-config | include ^ip scp server enable
+      register: scp_server_state
+      changed_when: false
+
+    - name: Conditionally enable SCP server
+      cisco.ios.ios_config:
+        lines:
+          - ip scp server enable
+        save_when: changed
+      when: "'ip scp server enable' not in scp_server_state.stdout[0]"
+
+    - name: Copy file to bootflash
+      ansible.netcommon.net_put:
+        src: ../requirements.txt
+        dest: bootflash:/requirements.txt
+        protocol: scp
+
+    - name: Reset connection
+      ansible.builtin.meta: reset_connection
+
+    - name: Verfiy copied file
+      cisco.ios.ios_command:
+        commands:
+          - dir bootflash:/requirements.txt
+      register: out
+
+    - name: Results
+      ansible.builtin.debug:
+        var: out.stdout_lines

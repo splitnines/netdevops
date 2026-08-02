@@ -1,6 +1,6 @@
 ---
 - name: Config backup
-  hosts: default
+  hosts: all_devices
   gather_facts: false
   tasks:
     - name: Timestamp

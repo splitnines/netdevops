@@ -1,0 +1,16 @@
+---
+- name: Show commands
+  hosts: all_devices
+  gather_facts: false
+
+  tasks:
+    - name: Show commands
+      cisco.ios.ios_command:
+        commands:
+          - show bgp ipv4 unicast summary
+          - show bgp ipv6 unicast summary
+      register: out
+
+    - name: Results
+      ansible.builtin.debug:
+        var: out.stdout

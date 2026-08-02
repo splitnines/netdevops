@@ -1,0 +1,25 @@
+all:
+  children:
+    consoles:
+      vars:
+        telnet_user: "{{ lookup('env', 'CISCO_USER') }}"
+        telnet_password: "{{ lookup('env', 'CISCO_PASS') }}"
+      hosts:
+        r1:
+          ansible_host: localhost
+          telnet_port: 9001
+        r2:
+          ansible_host: localhost
+          telnet_port: 9002
+        r3:
+          ansible_host: localhost
+          telnet_port: 9003
+        r4:
+          ansible_host: localhost
+          telnet_port: 9004
+        r5:
+          ansible_host: localhost
+          telnet_port: 9005
+        r6:
+          ansible_host: localhost
+          telnet_port: 9006
