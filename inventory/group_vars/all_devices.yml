@@ -1,5 +1,7 @@
 ansible_connection: ansible.netcommon.network_cli
 ansible_network_os: cisco.ios.ios
+ansible_become: true
+ansible_beome_method: enable
 
 # ansible_user: "{{ vault_ios_user }}"
 # ansible_password: "{{ vault_ios_pass }}"

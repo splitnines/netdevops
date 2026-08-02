@@ -1,0 +1,94 @@
+- name: CML console playbook
+  hosts: consoles
+  gather_facts: false
+
+  vars:
+    eigrp_routers:
+      - r1
+      - r2
+
+  tasks:
+    - name: Run console commands
+      ansible.builtin.expect:
+        command: "telnet {{ ansible_host }} {{ telnet_port }}"
+        timeout: 10
+        echo: false
+        responses:
+          "(?i)Escape character is \\'\\^\\]\\'\\.\\s*$": "\r"
+
+          '(?i)Username:\s*$': "{{ telnet_user }}"
+          '(?i)Password:\s*$': "{{ telnet_password }}"
+
+          '(?i)telnet>\s*$': "quit"
+
+          "(?i)Press RETURN to get started\\.": "\r"
+
+          '(?m)^(?!telnet>)[^\r\n]*[>#]\s*$':
+            - "terminal length 0"
+            - "configure terminal"
+            - "no logging console"
+            - "end"
+            - "show ip interface brief"
+            - "show clock"
+            - "configure terminal"
+            - "no logging console"
+            - "end"
+            - "terminal length 24"
+            - "\u001d"
+      register: results
+      changed_when: false
+      delegate_to: localhost
+      vars:
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+    - name: Run eigrp commands
+      when: inventory_hostname in eigrp_routers
+      ansible.builtin.expect:
+        command: "telnet {{ ansible_host }} {{ telnet_port }}"
+        timeout: 10
+        echo: false
+        responses:
+          "(?i)Escape character is \\'\\^\\]\\'\\.\\s*$": "\r"
+
+          '(?i)Username:\s*$': "{{ telnet_user }}"
+          '(?i)Password:\s*$': "{{ telnet_password }}"
+
+          '(?i)telnet>\s*$': "quit"
+
+          "(?i)Press RETURN to get started\\.": "\r"
+
+          '(?m)^(?!telnet>)[^\r\n]*[>#]\s*$':
+            - "terminal length 0"
+            - "configure terminal"
+            - "no logging console"
+            - "end"
+            - "show ip eigrp neighbors"
+            - "show clock"
+            - "configure terminal"
+            - "logging console"
+            - "end"
+            - "terminal length 24"
+            - "\u001d"
+      register: eigrp_results
+      changed_when: false
+      delegate_to: localhost
+      vars:
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+    - name: Print results
+      ansible.builtin.debug:
+        msg: |-
+          {% for host in ansible_play_hosts_all %}
+          ==================== {{ host }} ====================
+
+          All commands:
+          {{ hostvars[host].get('results', {}).get('stdout', 'No output collected') }}
+
+          {% if host in eigrp_routers %}
+          EIGRP commands:
+          {{ hostvars[host].get('eigrp_results', {}).get('stdout', 'No EIGRP output collected') }}
+          {% endif %}
+
+          {% endfor %}
+      run_once: true
+      delegate_to: localhost

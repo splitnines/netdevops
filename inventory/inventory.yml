@@ -33,7 +33,6 @@ all:
 
     consoles:
       vars:
-        ansible_connection: local
         telnet_user: "{{ lookup('env', 'CISCO_USER') }}"
         telnet_password: "{{ lookup('env', 'CISCO_PASS') }}"
       hosts:
