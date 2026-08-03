@@ -1,5 +1,5 @@
 ---
-- name: Show commands
+- name: Commit Configuration
   hosts: all_devices
   gather_facts: false
 

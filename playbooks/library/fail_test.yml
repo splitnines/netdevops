@@ -1,0 +1,9 @@
+---
+- name: Runtime failure test
+  hosts: all_devices
+  gather_facts: false
+
+  tasks:
+    - name: Failure path testing
+      ansible.builtin.fail:
+        msg: "Failure path testing"

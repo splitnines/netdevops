@@ -18,7 +18,8 @@ log_dir="$repo_root/logs" && mkdir -p "$log_dir"
 ansible_log_file="$log_dir/ansible-pre-cicd-$commit.log"
 git_log_file="$log_dir/git-hooks.log"
 tests_dir="$repo_root/tests"
-pyats_log_file="$log_dir/pyats-post-cicd-$commit.log"
+pyats_log_file="$log_dir/pyats-pre-cicd-$commit.log"
+
 exec > >(tee -a >(sed $'s/\033\\[[0-9;]*m//g' >>"$git_log_file")) 2>&1
 
 cd "$repo_root"
@@ -30,7 +31,7 @@ logger() {
 }
 
 rollback_config() {
-    echo "$(longer "pre") Running Ansible Rollback..."
+    echo "$(logger "pre") Running Ansible Rollback..."
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
         "$playbook_dir"/utils/rollback_config.yml >>"$ansible_log_file" 2>&1; then
@@ -40,11 +41,13 @@ rollback_config() {
     fi
     printf "${GREEN}%s Ansible rollback-config completed successfully${RESET}\n" \
         "$(logger "pre")"
+    printf "${RED}%s Commit %s aborted due to pipeline failure, see logs${RESET}\n" \
+        "$(logger "pre")" "$commit"
     exit 1
 }
 
 commit_config() {
-    echo "$(longer "pre") Running Ansible Commit..."
+    echo "$(logger "pre") Running Ansible Commit..."
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
         "$playbook_dir"/utils/commit_config.yml >>"$ansible_log_file" 2>&1; then
@@ -58,14 +61,14 @@ commit_config() {
 
 if [[ -z "$branch" ]]; then
     printf "${YELLOW}%s Detached HEAD; skipping CI/CD${RESET}" \
-        "$(logger "post")"
+        "$(logger "pre")"
     exit 0
 fi
 
 if [[ "$branch" = "main" ]]; then
-    echo "$(logger "post") Commit is on main; skipping CI/CD."
+    echo "$(logger "pre") Commit is on main; skipping CI/CD."
     printf "${YELLOW}%s Commit is on main; skipping CI/CD${RESET}" \
-        "$(logger "post")"
+        "$(logger "pre")"
     exit 0
 fi
 
@@ -141,7 +144,7 @@ fi
 
 # Run Ansible playbooks
 if [[ "$playbooks" = true ]]; then
-    echo "$(logger "post") Running Ansible playbooks..."
+    echo "$(logger "pre") Running Ansible playbooks..."
     for playbook in playbooks/*.yml playbooks/*.yaml; do
         [[ -f "$playbook" ]] || continue
 
@@ -151,33 +154,33 @@ if [[ "$playbooks" = true ]]; then
             ;;
         esac
 
-        echo "$(logger "post") Running: $playbook"
+        echo "$(logger "pre") Running: $playbook"
 
         if ! uv run ansible-playbook \
             -i inventory/inventory.yml \
             "$playbook" >>"$ansible_log_file" 2>&1; then
             printf "${RED}%s Ansible playbook failed: %s${RESET}\n" \
-                "$(logger "post")" "$playbook"
+                "$(logger "pre")" "$playbook"
             rollback_config
         fi
     done
     printf "${GREEN}%s Ansible playbooks completed successfully${RESET}\n" \
-        "$(logger "post")"
+        "$(logger "pre")"
 fi
 
 # Run pyATS tests
 pyats_status=0
 if [[ -f "$tests_dir"/job.py ]]; then
-    echo "$(logger "post") Running pyATS tests..."
+    echo "$(logger "pre") Running pyATS tests..."
     echo ""
 
     if uv run pyats run job tests/job.py --no-mail --no-archive >>"$pyats_log_file" 2>&1; then
         printf "${GREEN}%s pyATS tests completed successfully${RESET}\n" \
-            "$(logger "post")"
+            "$(logger "pre")"
     else
         pyats_status=$?
         printf "${RED}%s pyATS tests failed with status %s${RESET}\n" \
-            "$(logger "post")" "$pyats_status"
+            "$(logger "pre")" "$pyats_status"
         rollback_config
     fi
 fi
