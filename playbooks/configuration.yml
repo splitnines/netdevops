@@ -10,7 +10,7 @@
           - interface Ethernet0/0
         lines:
           - description configured by netdevops
-        save_when: changed
+        save_when: never
 
     - name: Verify configuration change
       cisco.ios.ios_command:
