@@ -6,7 +6,7 @@ This repository defines a local Git-driven workflow for applying and validating 
 
 The pipeline runs through Git `pre-commit` and `post-commit` hooks installed in each local clone. Commits on `main` and commits made from a detached `HEAD` skip the pipeline. A commit on any other branch runs the pre-commit pipeline before Git creates the commit and the post-commit pipeline after Git creates it.
 
-The repository is modular. A change may include an optional backup playbook, one or more deployment playbooks, optional pyATS tests, or any combination of these units. Inventory data, Ansible variables, pyATS testbeds, test suites and individual test scripts are maintained separately so that each can be replaced or extended for a specific environment.
+The repository is modular. A change may include an optional backup playbook, one or more deployment playbooks, optional pyATS tests, or any combination of these units. Ansible inventory examples contain their associated connection variables, while pyATS testbeds, test suites and individual test scripts remain separate so that each unit can be selected or extended for a specific environment.
 
 ## Pipeline sequence
 
@@ -28,9 +28,9 @@ A pre-commit pipeline failure prevents Git from creating the commit. A post-comm
 ├── ansible.cfg                    # Ansible defaults and connection settings
 ├── backups/                       # Configuration backups
 ├── inventory/
-│   ├── inventory.yml              # Canonical inventory; update for the target environment
-│   └── group_vars/
-│       └── all_devices.yml        # Shared variables for all managed devices
+│   └── library/
+│       ├── inventory.yml          # Network CLI inventory example
+│       └── inventory-consoles.yml # Console connection inventory example
 ├── local-pipeline/
 │   ├── pre-commit                 # Git pre-commit hook source
 │   ├── post-commit                # Git post-commit hook source
@@ -47,7 +47,7 @@ A pre-commit pipeline failure prevents Git from creating the commit. A post-comm
 └── uv.lock                        # Locked Python dependency versions
 ```
 
-Files under `playbooks/library/` and `tests/library/` are reference files. The pipeline executes playbooks placed directly under `playbooks/`, uses `inventory/inventory.yml` and executes the pyATS job at `tests/job.py`.
+Files under `inventory/library/`, `playbooks/library/` and `tests/library/` are reference files. Before running the pipeline, copy and adapt an inventory from `inventory/library/` to `inventory/inventory.yml`. The pipeline executes playbooks placed directly under `playbooks/`, uses the copied `inventory/inventory.yml` and executes the pyATS job at `tests/job.py`.
 
 ## Prerequisites
 
@@ -133,7 +133,7 @@ The hooks intentionally skip commits made on `main`. Perform pipeline work on a 
 
 ### 2. Configure credentials
 
-The included Ansible group variables and pyATS testbeds read credentials from `CISCO_USER` and `CISCO_PASS`. Export them in the shell before committing or running pipeline commands:
+The included Ansible inventory examples and pyATS testbeds read credentials from `CISCO_USER` and `CISCO_PASS`. Export them in the shell before committing or running pipeline commands:
 
 ```bash
 export CISCO_USER='<username>'
@@ -144,13 +144,28 @@ Do not commit credentials. The hooks inherit environment variables from the proc
 
 ### 3. Configure the Ansible inventory
 
-`inventory/inventory.yml` is the Ansible inventory used by the local pipeline and manual Ansible commands. Update this file directly for the target environment before committing a change.
+Inventory examples are stored under `inventory/library/`. The repository currently provides:
 
-Define the required device groups and hosts in `inventory/inventory.yml`. For each host, set the appropriate management address and any host-specific connection values. Ensure that group names match the `hosts` values used by the playbooks.
+- `inventory/library/inventory.yml` for direct network CLI connections.
+- `inventory/library/inventory-consoles.yml` for console connections.
 
-`inventory/group_vars/all_devices.yml` contains connection settings, credential lookups and other variables shared by all managed devices. Keep every managed device in the `all_devices` inventory group so that these variables apply consistently. Update this file only when the shared settings for the environment need to change.
+Select the appropriate example and copy it to the top level of `inventory/`. The local pipeline and all documented Ansible commands use only `inventory/inventory.yml`:
 
-Review the resulting host and group hierarchy before committing:
+```bash
+cp inventory/library/inventory.yml inventory/inventory.yml
+```
+
+For a console-based environment, use:
+
+```bash
+cp inventory/library/inventory-consoles.yml inventory/inventory.yml
+```
+
+Modify the copied `inventory/inventory.yml` for the target environment. Define the required groups and hosts, set each management address or console endpoint and ensure that group names match the `hosts` values used by the selected playbooks.
+
+The project no longer uses `inventory/group_vars/`. Shared connection settings and credential lookups are defined in each inventory example under the applicable group's `vars` mapping. Keep these variables with the corresponding group when modifying the copied inventory. Credentials must continue to reference `CISCO_USER` and `CISCO_PASS`; do not place literal credentials in the inventory.
+
+The top-level `inventory/inventory.yml` must exist before committing a change that invokes the pipeline. Review its host and group hierarchy before committing:
 
 ```bash
 uv run ansible-inventory -i inventory/inventory.yml --graph
@@ -165,13 +180,20 @@ uv run ansible-inventory -i inventory/inventory.yml \
 
 ### 4. Configure an optional backup playbook
 
-The pre-commit pipeline searches the top level of `playbooks/` for the first `.yml` or `.yaml` file whose name begins with `config_backup`. To enable configuration backup, create a matching playbook or copy and modify an example:
+The pre-commit pipeline searches the top level of `playbooks/` for the first `.yml` or `.yaml` file whose name begins with `config_backup`. To enable configuration backup, copy and rename the appropriate example:
 
 ```bash
-cp playbooks/library/config_backup.yml playbooks/config_backup.yml
+cp playbooks/library/backup.yml playbooks/config_backup.yml
 ```
 
-Names such as `config_backup.yml` and `config_backup_consoles.yml` are recognized. Backup playbooks are excluded from post-commit deployment.
+For a console-based environment, use:
+
+```bash
+cp playbooks/library/backup-consoles.yml \
+  playbooks/config_backup-consoles.yml
+```
+
+Names such as `config_backup.yml` and `config_backup-consoles.yml` are recognized. Backup playbooks are excluded from post-commit deployment. Ensure that the selected backup playbook's `hosts` value exists in `inventory/inventory.yml`.
 
 The backup runs before Git creates the commit and uses `inventory/inventory.yml`. A backup failure stops the commit. Generated `*.cfg` files under `backups/` are ignored by Git and must not be committed.
 
@@ -189,8 +211,7 @@ uv run ansible-playbook \
 Create or copy deployment playbooks into the top level of `playbooks/`:
 
 ```bash
-cp playbooks/library/configuration_template.yml \
-  playbooks/configuration.yml
+cp playbooks/library/configuration.yml playbooks/configuration.yml
 ```
 
 The post-commit pipeline processes top-level `.yml` and `.yaml` files. Files with names containing `config_backup` are skipped. Playbooks under `playbooks/library/` are not executed.
