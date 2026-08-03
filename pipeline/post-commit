@@ -29,7 +29,7 @@ if [[ "$branch" = "main" ]]; then
     exit 0
 fi
 
-pipeline="$repo_root/local-pipeline/local_ci-cd-post"
+pipeline="$repo_root/pipeline/local_ci-cd-post"
 
 if [[ ! -x "$pipeline" ]]; then
     echo "$(logger "post") Pipeline is missing or not executable: $pipeline" >&2

@@ -28,7 +28,7 @@ fi
 
 commit=$(git rev-parse HEAD)
 
-pipeline="$repo_root/local-pipeline/local_ci-cd-pre"
+pipeline="$repo_root/pipeline/local_ci-cd-pre"
 
 if [[ ! -x "$pipeline" ]]; then
     echo "$(logger "pre") Pipeline is missing or not executable: $pipeline" >&2

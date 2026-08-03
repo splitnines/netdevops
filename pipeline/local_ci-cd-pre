@@ -7,12 +7,6 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RESET='\033[0m'
 
-logger() {
-    local prefix=${1:-cicd}
-    ts=$(date '+%Y-%m-%d %H:%M:%S')
-    printf '%s [%s-commit]:' "$ts" "$prefix"
-}
-
 repo_root=${1:?Missing repository root}
 branch=${2:?Missing branch name}
 commit=${3:?Missing commit SHA}
@@ -23,9 +17,44 @@ log_dir="$repo_root/logs" && mkdir -p "$log_dir"
 
 ansible_log_file="$log_dir/ansible-pre-cicd-$commit.log"
 git_log_file="$log_dir/git-hooks.log"
+tests_dir="$repo_root/tests"
+pyats_log_file="$log_dir/pyats-post-cicd-$commit.log"
 exec > >(tee -a >(sed $'s/\033\\[[0-9;]*m//g' >>"$git_log_file")) 2>&1
 
 cd "$repo_root"
+
+logger() {
+    local prefix=${1:-cicd}
+    ts=$(date '+%Y-%m-%d %H:%M:%S')
+    printf '%s [%s-commit]:' "$ts" "$prefix"
+}
+
+rollback_config() {
+    echo "$(longer "pre") Running Ansible Rollback..."
+    if ! uv run ansible-playbook \
+        -i inventory/inventory.yml \
+        "$playbook_dir"/utils/rollback_config.yml >>"$ansible_log_file" 2>&1; then
+        printf "${RED}%s Ansible rollback-config failed, exiting pipeline${RESET}\n" \
+            "$(logger "pre")"
+        exit 1
+    fi
+    printf "${GREEN}%s Ansible rollback-config completed successfully${RESET}\n" \
+        "$(logger "pre")"
+    exit 1
+}
+
+commit_config() {
+    echo "$(longer "pre") Running Ansible Commit..."
+    if ! uv run ansible-playbook \
+        -i inventory/inventory.yml \
+        "$playbook_dir"/utils/commit_config.yml >>"$ansible_log_file" 2>&1; then
+        printf "${RED}%s Ansible commit-config failed, exiting pipeline${RESET}\n" \
+            "$(logger "pre")"
+        exit 1
+    fi
+    printf "${GREEN}%s Ansible commit-config completed successfully${RESET}\n" \
+        "$(logger "pre")"
+}
 
 if [[ -z "$branch" ]]; then
     printf "${YELLOW}%s Detached HEAD; skipping CI/CD${RESET}" \
@@ -60,10 +89,8 @@ if [[ "$playbooks" = true ]]; then
     uv sync --python 3.14 >/dev/null 2>&1
     printf "${YELLOW}%s Python environment sync complete${RESET}\n" \
         "$(logger "pre")"
-fi
 
-# Ansible syntax check
-if [[ "$playbooks" = true ]]; then
+    # Run Ansible syntax check
     echo "$(logger "pre") Running Ansible Syntax Check..."
 
     if ! find playbooks -maxdepth 1 -type f \
@@ -79,10 +106,10 @@ if [[ "$playbooks" = true ]]; then
         "$(logger "pre")"
 fi
 
-# Ansible backups
+# Run Ansible backups
 backup=false
 backup_file=""
-for file in "$playbook_dir/"config_backup*.yml "$playbook_dir/"config_backup*.yaml; do
+for file in "$playbook_dir/"*backup*.yml "$playbook_dir/"*backup*.yaml; do
     if [[ -f "$file" ]]; then
         backup=true
         backup_file=${file##*/}
@@ -104,6 +131,59 @@ if [[ "$backup" = true ]]; then
     printf "${YELLOW}%s Backups saved to %s/backups${RESET}\n" \
         "$(logger "pre")" "$repo_root"
 fi
+
+# Run Ansible commit-config
+if [[ "$playbooks" = true ]]; then
+    commit_config
+fi
+
+# Failures after this point run the rollback_config.yml playbook
+
+# Run Ansible playbooks
+if [[ "$playbooks" = true ]]; then
+    echo "$(logger "post") Running Ansible playbooks..."
+    for playbook in playbooks/*.yml playbooks/*.yaml; do
+        [[ -f "$playbook" ]] || continue
+
+        case ${playbook##*/} in
+        *backup*.yml | *backup*.yaml)
+            continue
+            ;;
+        esac
+
+        echo "$(logger "post") Running: $playbook"
+
+        if ! uv run ansible-playbook \
+            -i inventory/inventory.yml \
+            "$playbook" >>"$ansible_log_file" 2>&1; then
+            printf "${RED}%s Ansible playbook failed: %s${RESET}\n" \
+                "$(logger "post")" "$playbook"
+            rollback_config
+        fi
+    done
+    printf "${GREEN}%s Ansible playbooks completed successfully${RESET}\n" \
+        "$(logger "post")"
+fi
+
+# Run pyATS tests
+pyats_status=0
+if [[ -f "$tests_dir"/job.py ]]; then
+    echo "$(logger "post") Running pyATS tests..."
+    echo ""
+
+    if uv run pyats run job tests/job.py --no-mail --no-archive >>"$pyats_log_file" 2>&1; then
+        printf "${GREEN}%s pyATS tests completed successfully${RESET}\n" \
+            "$(logger "post")"
+    else
+        pyats_status=$?
+        printf "${RED}%s pyATS tests failed with status %s${RESET}\n" \
+            "$(logger "post")" "$pyats_status"
+        rollback_config
+    fi
+fi
+
+# Commit the config is all playbooks and tests passed
+commit_config
 
 if [[ "$playbooks" = true || "$backup" = true ]]; then
     printf "${GREEN}%s Local pre-commit CI/CD completed successfully for %s at %s${RESET}\n" \

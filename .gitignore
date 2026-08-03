@@ -53,7 +53,7 @@ logs/
 # -------------------------
 # Github runner root
 # -------------------------
-actions-runner/
+actions_runner/
 
 # unit test data
 tests/unit_tests/data
