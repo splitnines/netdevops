@@ -1,0 +1,27 @@
+---
+- name: Configuration Template
+  hosts: r3
+  gather_facts: false
+
+  tasks:
+    - name: Configuration
+      cisco.ios.ios_config:
+        parents:
+          - router bgp 65002
+          - address-family ipv4
+        lines:
+          - aggregate-address 10.2.254.0 255.255.255.0 summary-only
+        save_when: changed
+
+    - name: Verify configuration change
+      cisco.ios.ios_command:
+        commands:
+          - show running-config | include router_bgp
+      register: router_bgp
+      changed_when: false
+
+    - name: Validate configuration change
+      ansible.builtin.assert:
+        that:
+          - "'aggregate-address 10.2.254.0 255.255.255.0 summary-only' in interface_description.stdout[0]"
+        fail_msg: "Configuration change failed on {{ inventory_hostname }}"

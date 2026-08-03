@@ -1,0 +1,56 @@
+testbed:
+  name: all_routers
+  credentials:
+    default:
+      username: "%ENV{CISCO_USER}"
+      password: "%ENV{CISCO_PASS}"
+
+devices:
+  r1:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: ssh
+        ip: 10.1.254.1
+        port: 22
+  r2:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: ssh
+        ip: 10.1.254.2
+        port: 22
+  r3:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: ssh
+        ip: 10.2.254.3
+        port: 22
+  r4:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: ssh
+        ip: 10.2.254.4
+        port: 22
+  r5:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: ssh
+        ip: 10.2.254.5
+        port: 22
+  r6:
+    os: iosxe
+    type: router
+    connections:
+      cli:
+        protocol: ssh
+        ip: 10.3.254.6
+        port: 22
