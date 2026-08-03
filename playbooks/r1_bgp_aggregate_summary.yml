@@ -16,7 +16,7 @@
     - name: Verify configuration change
       cisco.ios.ios_command:
         commands:
-          - show running-config | include router_bgp
+          - show running-config | section router_bgp
       register: router_bgp
       changed_when: false
 
