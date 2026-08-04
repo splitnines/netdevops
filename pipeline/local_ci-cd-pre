@@ -12,13 +12,12 @@ branch=${2:?Missing branch name}
 commit=${3:?Missing commit SHA}
 
 playbook_dir="$repo_root/playbooks"
-
 log_dir="$repo_root/logs" && mkdir -p "$log_dir"
-
 ansible_log_file="$log_dir/ansible-pre-cicd-$commit.log"
 git_log_file="$log_dir/git-hooks.log"
 tests_dir="$repo_root/tests"
 pyats_log_file="$log_dir/pyats-pre-cicd-$commit.log"
+utils_dir="$playbook_dir/utils"
 
 exec > >(tee -a >(sed $'s/\033\\[[0-9;]*m//g' >>"$git_log_file")) 2>&1
 
@@ -50,7 +49,7 @@ commit_config() {
     echo "$(logger "pre") Running Ansible Commit..."
     if ! uv run ansible-playbook \
         -i inventory/inventory.yml \
-        "$playbook_dir"/utils/commit_config.yml >>"$ansible_log_file" 2>&1; then
+        "$utils_dir/commit_config.yml" >>"$ansible_log_file" 2>&1; then
         printf "${RED}%s Ansible commit-config failed, exiting pipeline${RESET}\n" \
             "$(logger "pre")"
         exit 1
@@ -70,6 +69,16 @@ if [[ "$branch" = "main" ]]; then
     printf "${YELLOW}%s Commit is on main; skipping CI/CD${RESET}" \
         "$(logger "pre")"
     exit 0
+fi
+
+rollback=false
+if [[ -f "$utils_dir/rollback_config.yml" ]]; then
+    rollback=true
+fi
+
+save=false
+if [[ -f "$utils_dir/commit_config.yml" ]]; then
+    save=true
 fi
 
 playbooks=false
@@ -136,7 +145,7 @@ if [[ "$backup" = true ]]; then
 fi
 
 # Run Ansible commit-config
-if [[ "$playbooks" = true ]]; then
+if [[ "$playbooks" = true && "$save" = true ]]; then
     commit_config
 fi
 
@@ -161,7 +170,11 @@ if [[ "$playbooks" = true ]]; then
             "$playbook" >>"$ansible_log_file" 2>&1; then
             printf "${RED}%s Ansible playbook failed: %s${RESET}\n" \
                 "$(logger "pre")" "$playbook"
-            rollback_config
+            if [[ "$rollback" = true ]]; then
+                rollback_config
+            else
+                exit 1
+            fi
         fi
     done
     printf "${GREEN}%s Ansible playbooks completed successfully${RESET}\n" \
@@ -180,12 +193,18 @@ if [[ -f "$tests_dir"/job.py ]]; then
         pyats_status=$?
         printf "${RED}%s pyATS tests failed with status %s${RESET}\n" \
             "$(logger "pre")" "$pyats_status"
-        rollback_config
+        if [[ "$rollback" = true ]]; then
+            rollback_config
+        else
+            exit 1
+        fi
     fi
 fi
 
 # Commit the config is all playbooks and tests passed
-commit_config
+if [[ "$save" = true ]]; then
+    commit_config
+fi
 
 if [[ "$playbooks" = true || "$backup" = true ]]; then
     printf "${GREEN}%s Local pre-commit CI/CD completed successfully for %s at %s${RESET}\n" \
