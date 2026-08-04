@@ -4,8 +4,16 @@
 
   vars:
     eigrp_routers:
+      - r2
+      - r3
+
+    ospf_routers:
       - r1
       - r2
+
+    bgp_routers:
+      - r3
+      - r4
 
   tasks:
     - name: Run console commands
@@ -28,8 +36,7 @@
             - "configure terminal"
             - "no logging console"
             - "end"
-            - "show ip interface brief"
-            - "show clock"
+            - "show ip route"
             - "configure terminal"
             - "no logging console"
             - "end"
@@ -62,14 +69,79 @@
             - "configure terminal"
             - "no logging console"
             - "end"
-            - "show ip eigrp neighbors"
-            - "show clock"
+            - "show ip eigrp topology"
             - "configure terminal"
             - "logging console"
             - "end"
             - "terminal length 24"
             - "\u001d"
       register: eigrp_results
+      changed_when: false
+      delegate_to: localhost
+      vars:
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+    - name: Run ospf commands
+      when: inventory_hostname in ospf_routers
+      ansible.builtin.expect:
+        command: "telnet {{ ansible_host }} {{ telnet_port }}"
+        timeout: 10
+        echo: false
+        responses:
+          "(?i)Escape character is \\'\\^\\]\\'\\.\\s*$": "\r"
+
+          '(?i)Username:\s*$': "{{ telnet_user }}"
+          '(?i)Password:\s*$': "{{ telnet_password }}"
+
+          '(?i)telnet>\s*$': "quit"
+
+          "(?i)Press RETURN to get started\\.": "\r"
+
+          '(?m)^(?!telnet>)[^\r\n]*[>#]\s*$':
+            - "terminal length 0"
+            - "configure terminal"
+            - "no logging console"
+            - "end"
+            - "sh ip ospf database"
+            - "configure terminal"
+            - "logging console"
+            - "end"
+            - "terminal length 24"
+            - "\u001d"
+      register: ospf_results
+      changed_when: false
+      delegate_to: localhost
+      vars:
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+    - name: Run bgp commands
+      when: inventory_hostname in bgp_routers
+      ansible.builtin.expect:
+        command: "telnet {{ ansible_host }} {{ telnet_port }}"
+        timeout: 10
+        echo: false
+        responses:
+          "(?i)Escape character is \\'\\^\\]\\'\\.\\s*$": "\r"
+
+          '(?i)Username:\s*$': "{{ telnet_user }}"
+          '(?i)Password:\s*$': "{{ telnet_password }}"
+
+          '(?i)telnet>\s*$': "quit"
+
+          "(?i)Press RETURN to get started\\.": "\r"
+
+          '(?m)^(?!telnet>)[^\r\n]*[>#]\s*$':
+            - "terminal length 0"
+            - "configure terminal"
+            - "no logging console"
+            - "end"
+            - "show bgp ipv4 unicast"
+            - "configure terminal"
+            - "logging console"
+            - "end"
+            - "terminal length 24"
+            - "\u001d"
+      register: bgp_results
       changed_when: false
       delegate_to: localhost
       vars:
@@ -87,6 +159,16 @@
           {% if host in eigrp_routers %}
           EIGRP commands:
           {{ hostvars[host].get('eigrp_results', {}).get('stdout', 'No EIGRP output collected') }}
+          {% endif %}
+
+          {% if host in ospf_routers %}
+          OSPF commands:
+          {{ hostvars[host].get('ospf_results', {}).get('stdout', 'No OSPF output collected') }}
+          {% endif %}
+
+          {% if host in bgp_routers %}
+          BGP commands:
+          {{ hostvars[host].get('bgp_results', {}).get('stdout', 'No BGP output collected') }}
           {% endif %}
 
           {% endfor %}
