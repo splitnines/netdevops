@@ -10,6 +10,7 @@ dependencies = [
     "paramiko>=4.0.0",
     "pexpect>=4.9.0",
     "pyats[full]>=25.7",
+    "pytest>=9.1.1",
     "python-dotenv>=1.1.1",
     "ty>=0.0.63",
 ]

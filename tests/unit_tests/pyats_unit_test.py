@@ -4,6 +4,9 @@ from test_suites.test_scripts.eigrp.ipv6_interfaces_test import (
     extract_eigrp_intf_metrics,
 )
 from test_suites.test_scripts.ospfv2.ip_protocols import extract_ospf_rid
+from test_suites.test_scripts.bgp.bgp_neighbors_status import (
+    extract_bgp_neighbor_session_state,
+)
 
 
 def test_extract_eigrp_intf_metrics():
@@ -68,3 +71,19 @@ def test_extract_ospf_rid():
         "instance": "1",
         "router_id": "2.2.2.2",
     }
+
+
+def test_extract_bgp_neighbor_session_state():
+    input_test_data = os.path.join(
+        os.path.dirname(__file__), "data", "bgp_neighbors.json"
+    )
+
+    with open(input_test_data, "r") as f:
+        data = json.load(f)
+
+    for af, neighbor, state in extract_bgp_neighbor_session_state(data):
+        assert (af, neighbor, state) == (
+            "ipv4 unicast",
+            "10.3.4.2",
+            "Established",
+        )
