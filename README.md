@@ -4,7 +4,7 @@
 
 This repository defines a local Git-driven workflow for applying and validating network changes on Cisco IOS XE devices. Ansible performs syntax validation, configuration backup, deployment, configuration rollback and configuration persistence. pyATS performs optional post-deployment validation.
 
-The complete pipeline runs through a Git `pre-commit` hook installed in each local clone. Commits on `main` and commits made from a detached `HEAD` skip the pipeline. On any other branch, Git creates the commit only after every required pipeline stage succeeds. Configuration persistence and rollback are optional capabilities enabled by copying their utility playbooks into `playbooks/utils/`.
+The complete pipeline runs through a Git `pre-commit` hook installed in each local clone. Commits on `main` skip the pipeline. On any other branch, Git creates the commit only after every required pipeline stage succeeds. Configuration persistence and rollback are optional capabilities enabled by copying their utility playbooks into `playbooks/utils/`.
 
 The repository is modular. A change may include an optional backup playbook, one or more deployment playbooks, optional pyATS tests, or any combination of these units. Ansible inventory examples contain their associated connection variables, while pyATS testbeds, test suites and individual test scripts remain separate so that each unit can be selected or extended for a specific environment.
 
@@ -12,10 +12,10 @@ The repository is modular. A change may include an optional backup playbook, one
 
 For a commit on a branch other than `main`, the local pipeline executes in this order:
 
-1. Detect one or more `.yml` playbooks directly under `playbooks/`.
+1. Detect one or more playbooks directly under `playbooks/`.
 2. Install Python 3.14 when necessary and synchronize the environment with `uv`.
-3. Syntax-check every top-level `.yml` and `.yaml` playbook.
-4. Run the first optional top-level playbook whose filename contains `backup`.
+3. Syntax-check every top-level playbook.
+4. Run the configuration backup playbook whose filename contains `backup`.
 5. If `playbooks/utils/commit_config.yml` exists, run it to save the current running configuration as the rollback baseline.
 6. Run each top-level deployment playbook, excluding filenames that contain `backup`.
 7. Run pyATS when `tests/job.py` exists.
